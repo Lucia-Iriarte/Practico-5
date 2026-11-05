@@ -52,7 +52,7 @@ Se divide el sistema en tres zonas con fronteras de confianza explícitas:
 
 #### Diagrama de arquitectura (alto nivel)
 Los datos solo cruzan hacia afuera: el Publicador, dentro de la red interna, empuja los puntajes confirmados al Store público; Internet nunca inicia una conexión hacia el core.
-![Arquitectura de alto nivel](diagramas/arquitectura.png)
+![Arquitectura de alto nivel](diagramas/arquitectura-fixed.png)
 
 #### Estrategias para impedir modificar una nota desde Internet:
 1. No existe ningún endpoint de escritura en la capa pública.
