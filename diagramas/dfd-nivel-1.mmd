@@ -1,0 +1,36 @@
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Helvetica","fontSize":"15px","primaryColor":"#eef3fb","primaryBorderColor":"#2f5597","lineColor":"#44546a","clusterBkg":"#fafafa","clusterBorder":"#8ea9c8"}}}%%
+flowchart LR
+  subgraph ZINT["Zona Internet"]
+    UI["Usuario Internet<br/>(anonimo)"]
+  end
+
+  subgraph ZTOR["Red del torneo"]
+    J["Juez"]
+    M["Mesa de control"]
+    A["Administrador"]
+  end
+
+  subgraph SYS["Sistema de gestion de torneos y tablero publico"]
+    P1(("P1<br/>Autenticar y<br/>gestionar identidades"))
+    P2(("P2<br/>Registrar y validar<br/>puntajes"))
+    P3(("P3<br/>Publicar resultados<br/>oficiales"))
+    P4(("P4<br/>Consultar tablero<br/>publico"))
+    D1[("D1<br/>BD competicion")]
+    D2[("D2<br/>Replica publica")]
+    D3[("D3<br/>Auditoria")]
+  end
+
+  UI -->|"consulta"| P4
+  P4 -->|"lectura"| D2
+  J -->|"puntaje + identidad"| P2
+  M -->|"validacion"| P2
+  A -->|"gestion"| P1
+  J -->|"credenciales"| P1
+  M -->|"credenciales"| P1
+  P1 -->|"identidad y rol"| P2
+  P2 -->|"escritura"| D1
+  P2 -->|"eventos"| D3
+  P3 -->|"lectura de oficiales"| D1
+  P3 -->|"snapshot firmado"| D2
+  P3 -->|"eventos"| D3
+  P4 -->|"eventos"| D3

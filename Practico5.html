@@ -1,0 +1,2368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Práctica 5 — Diseño seguro</title>
+<style>
+@page { size: A4; margin: 2cm 2cm 2cm 2cm; }
+* { box-sizing: border-box; }
+body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #262626;
+       font-size: 10.2pt; line-height: 1.42; margin: 0; }
+h1, h2, h3, h4 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1F3864; }
+h2 { font-size: 17pt; margin: 22pt 0 8pt 0; padding-bottom: 4pt;
+     border-bottom: 1px solid #D6E0F0; page-break-before: auto; page-break-after: avoid; }
+h2:first-of-type { margin-top: 0; }
+h3 { font-size: 12.5pt; color: #2F5597; margin: 16pt 0 5pt 0; page-break-after: avoid; }
+h4 { font-size: 11pt; color: #2F5597; margin: 12pt 0 4pt 0; page-break-after: avoid; }
+p { margin: 0 0 6pt 0; text-align: justify; }
+ul, ol { margin: 0 0 8pt 0; padding-left: 18pt; }
+li { margin-bottom: 2pt; }
+table { width: 100%; table-layout: fixed; border-collapse: collapse; margin: 6pt 0 12pt 0;
+        font-size: 7.8pt; line-height: 1.25; page-break-inside: auto; }
+th, td { border: 0.5pt solid #B4C6E7; padding: 3pt 4pt; vertical-align: top; text-align: left;
+         overflow-wrap: anywhere; word-break: normal; }
+th { overflow-wrap: normal; }
+th { background: #1F3864; color: #fff; font-weight: 600; }
+tr:nth-child(even) td { background: #F2F5FA; }
+tr { page-break-inside: avoid; }
+img { display: block; max-width: 100%; height: auto; margin: 10pt auto 4pt auto; page-break-inside: avoid; }
+em { color: #595959; }
+code { font-family: Menlo, Consolas, monospace; font-size: 8.8pt; color: #C7254E;
+       background: #F2F2F2; padding: 0 2px; border-radius: 2px; }
+blockquote { margin: 8pt 18pt; padding: 6pt 10pt; border-left: 3pt solid #2F5597;
+             background: #F5F8FD; color: #444; font-style: italic; }
+hr { border: 0; border-top: 1px solid #D6E0F0; margin: 14pt 0; }
+.cover { min-height: 245mm; display: flex; flex-direction: column; justify-content: flex-start; }
+.cover .uni { color: #2F5597; font-weight: 700; font-size: 11pt; letter-spacing: 0.5pt; }
+.cover .course { color: #595959; font-size: 10.5pt; margin-top: 2pt; }
+.cover .prac { color: #2F5597; font-weight: 700; font-size: 20pt; margin-top: 55pt; }
+.cover .title { color: #1F3864; font-weight: 700; font-size: 38pt; line-height: 1.05;
+                margin-top: 0; padding-bottom: 10pt; border-bottom: 2.5pt solid #2F5597; }
+.cover .subtitle { color: #2F5597; font-size: 17pt; margin-top: 14pt; line-height: 1.25; }
+.cover .abstract { color: #595959; font-size: 11pt; margin-top: 24pt; max-width: 150mm; }
+.cover .meta { margin-top: 42pt; width: 165mm; }
+.cover .meta table { border: 0; font-size: 10pt; margin: 0; }
+.cover .meta td { border: 0; padding: 3pt 6pt 3pt 0; background: transparent !important; }
+.cover .meta td:first-child { color: #2F5597; font-weight: 700; width: 32mm; }
+.cover .foot { margin-top: auto; color: #7F7F7F; font-size: 9pt; text-align: center; }
+.toc-title { font-size: 20pt; color: #1F3864; font-weight: 700; border-bottom: 1px solid #D6E0F0;
+             padding-bottom: 6pt; margin-bottom: 14pt; }
+.toc-l2 { font-weight: 700; color: #1F3864; font-size: 10.5pt; margin: 5pt 0 1pt 0; }
+.toc-l3 { color: #595959; font-size: 9.5pt; margin: 1pt 0 1pt 8mm; }
+.page-break { page-break-after: always; }
+.caption { text-align: center; font-size: 8.5pt; color: #595959; font-style: italic; margin: -2pt 0 12pt 0; }
+@media print { .no-print { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="uni">UNIVERSIDAD CATÓLICA DEL URUGUAY</div>
+  <div class="course">Desarrollo de Software Seguro · 2026</div>
+  <div class="prac">Práctica 5</div>
+  <div class="title">Diseño seguro</div>
+  <div class="subtitle">Modelado de amenazas del tablero público de puntajes</div>
+  <div class="abstract">Nueva iteración del proceso de modelado de amenazas de la Federación deportiva
+  ante la publicación de resultados en vivo y de torneos anteriores en Internet.</div>
+  <div class="meta">
+    <table>
+      <tr><td>Curso</td><td>Desarrollo de Software Seguro (302426) — 2026, segundo semestre</td></tr>
+      <tr><td>Consigna</td><td>Práctica 5 — Diseño seguro</td></tr>
+      <tr><td>Autora</td><td>Lucía Iriarte</td></tr>
+      <tr><td>Fecha</td><td>Octubre de 2026</td></tr>
+      <tr><td>Entrega</td><td>Documento de arquitectura y modelo de amenazas</td></tr>
+    </table>
+  </div>
+  <div class="foot">Documento de entrega · Octubre de 2026</div>
+</div>
+<div class="page-break"></div>
+<div class="toc-title">Contenido</div>
+<div class="toc-l2">Resumen ejecutivo</div>
+<div class="toc-l2">1. Contexto y alcance</div>
+<div class="toc-l3">1.1 El sistema y el cambio solicitado</div>
+<div class="toc-l3">1.2 Objetivos de negocio y requisitos</div>
+<div class="toc-l3">1.3 Supuestos y límites del análisis</div>
+<div class="toc-l3">1.4 Activos a proteger</div>
+<div class="toc-l3">1.5 Criterios de riesgo y umbrales</div>
+<div class="toc-l2">2. Entregable I — Arquitectura propuesta</div>
+<div class="toc-l3">2.1 Vista de arquitectura</div>
+<div class="toc-l3">2.2 Principios de diseño seguro</div>
+<div class="toc-l3">2.3 Componentes y responsabilidades</div>
+<div class="toc-l3">2.4 Zonas de confianza y segmentación de red</div>
+<div class="toc-l3">2.5 Dependencias externas</div>
+<div class="toc-l3">2.6 Puntos de entrada y niveles de confianza</div>
+<div class="toc-l3">2.7 Flujo de publicación de resultados</div>
+<div class="toc-l3">2.8 Decisiones de diseño y trade-offs</div>
+<div class="toc-l3">2.9 Requisitos de seguridad derivados</div>
+<div class="toc-l2">3. Entregable II — Paso 1: Determinar el alcance</div>
+<div class="toc-l3">3.1 Proceso OWASP aplicado</div>
+<div class="toc-l3">3.2 DFD nivel 1</div>
+<div class="toc-l3">3.3 DFD nivel 2: registro y validación de puntajes</div>
+<div class="toc-l3">3.4 DFD nivel 2: publicación y consulta</div>
+<div class="toc-l3">3.5 Flujos y niveles de confianza</div>
+<div class="toc-l2">4. Paso 2: Determinar amenazas</div>
+<div class="toc-l3">4.1 Método</div>
+<div class="toc-l3">4.2 Amenazas del nuevo requerimiento</div>
+<div class="toc-l3">4.3 Reevaluación de amenazas heredadas</div>
+<div class="toc-l3">4.4 Ranking de amenazas</div>
+<div class="toc-l2">5. Paso 3: Determinar contramedidas y mitigaciones</div>
+<div class="toc-l3">5.1 Estrategia de tratamiento</div>
+<div class="toc-l3">5.2 Contramedidas por amenaza</div>
+<div class="toc-l3">5.3 Controles transversales</div>
+<div class="toc-l3">5.4 Privacidad y protección de datos</div>
+<div class="toc-l3">5.5 Riesgos residuales y aceptación</div>
+<div class="toc-l2">6. Paso 4: Evaluar el análisis y próximos pasos</div>
+<div class="toc-l3">6.1 Evaluación de las cuatro preguntas</div>
+<div class="toc-l3">6.2 Plan de validación</div>
+<div class="toc-l3">6.3 Temas abiertos para la próxima iteración</div>
+<div class="toc-l3">6.4 Métricas de seguimiento</div>
+<div class="toc-l2">7. Conclusiones</div>
+<div class="toc-l2">Anexo A. Glosario</div>
+<div class="toc-l2">Anexo B. Referencias</div>
+<div class="toc-l2">Anexo C. Mapeo con OWASP Top 10 2021</div>
+<div class="page-break"></div>
+<div class="content">
+<h2>Resumen ejecutivo</h2>
+<p>La Federación incorpora al sistema de gestión de torneos un tablero público en Internet para consultar resultados en vivo y resultados de torneos anteriores. El cambio parece una funcionalidad de lectura, pero modifica de forma sustancial la superficie de exposición del sistema: por primera vez la aplicación queda accesible desde una red no confiable y el resultado de una competencia se convierte en información pública.</p>
+<p>La preocupación del presidente de la Federación —que alguien desde Internet modifique una nota— se aborda en la arquitectura, no solo con controles de aplicación. La propuesta separa el <strong>plano de escritura</strong> (registro, validación y oficialización de puntajes) del <strong>plano de publicación</strong> (consulta pública). El tablero público se alimenta de una réplica de solo lectura mediante un flujo <strong>unidireccional</strong> de snapshots firmados; la DMZ pública no tiene ruta hacia la red interna; la API pública no implementa operaciones de escritura y el usuario de base de datos asociado solo puede ejecutar <code>SELECT</code>. Aun si un atacante comprometiera el sitio o la API pública, no obtendría un camino directo hacia la base de competición.</p>
+<p>El modelo de amenazas se construyó aplicando el proceso OWASP presentado en el teórico: determinar el alcance, identificar amenazas con STRIDE, definir contramedidas y evaluar el resultado. Se identificaron <strong>20 amenazas nuevas</strong> vinculadas al tablero público y se <strong>reevaluaron 6 amenazas heredadas</strong> de la iteración anterior. Las de mayor puntaje DREAD son la exposición de datos personales en el tablero (8,6), la denegación de servicio durante el evento (8,6), la alteración de puntajes desde Internet (8,4) y la divulgación de información y elevación de privilegios (8,0). Todas las amenazas quedan con riesgo residual bajo, salvo <strong>NT-11 (DDoS)</strong>, que queda en <strong>4,2 (medio)</strong> y se acepta formalmente con condiciones, responsable y revisión posterior al evento.</p>
+<p>El diseño propuesto permite publicar resultados en vivo sin comprometer la integridad de la competencia, protege los datos personales de gimnastas —posiblemente menores de edad— y mantiene la operación del torneo aun si el tablero público o la conexión a Internet fallan.</p>
+<hr>
+<h2>1. Contexto y alcance</h2>
+<h3>1.1 El sistema y el cambio solicitado</h3>
+<p>La Federación deportiva opera un sistema de gestión de torneos analizado en el teórico. Los gimnastas se inscriben en categorías (P1 a P4 y AC1 a AC4), pueden representar a un club o competir en forma libre, y realizan una rutina en cada uno de los cuatro aparatos: viga, salto, barra y suelo. Cada rutina recibe un puntaje entre 0 y 99,999 con tres decimales.</p>
+<p>En la versión analizada, los jueces reciben una planilla, anotan la nota y la mesa de control la ingresa en la aplicación web. La nueva versión incorpora tablets para que los jueces ingresen directamente los puntajes. La iteración anterior del modelo de amenazas identificó, entre otros riesgos, la suplantación de jueces, la modificación de puntajes, el repudio de una nota, la exposición de tokens JWT, la denegación de servicio y la elevación de privilegios por parte de la mesa de control o un administrador.</p>
+<p>El nuevo requerimiento agrega un <strong>tablero de puntajes público en Internet</strong>:</p>
+<ul>
+<li>Cualquier persona puede acceder a una URL y ver los resultados en vivo del torneo.</li>
+<li>También puede consultar los resultados de torneos anteriores.</li>
+<li>El tablero debe ser transparente y equitativo, en línea con el principio deportivo de que cualquier interesado pueda conocer los puntajes.</li>
+<li>El presidente de la Federación manifestó su preocupación por que alguien desde Internet modifique la nota de un gimnasta.</li>
+</ul>
+<p>El desarrollo de esta nueva versión <strong>aún no ha comenzado</strong>. Por lo tanto, el modelado de amenazas se realiza en la etapa de diseño, que es el momento de menor costo para corregir decisiones estructurales.</p>
+<h3>1.2 Objetivos de negocio y requisitos</h3>
+<table><colgroup><col style="width:11.76%"><col style="width:44.12%"><col style="width:44.12%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Objetivo</th>
+<th>Implicancia de seguridad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ON-01</td>
+<td>Registrar puntajes de forma precisa y trazable, reduciendo errores humanos.</td>
+<td>Integridad, auditoría y no repudio de cada registro.</td>
+</tr>
+<tr>
+<td>ON-02</td>
+<td>Garantizar la integridad de los puntajes, evitando manipulaciones posteriores.</td>
+<td>Control de acceso, firmas, versionado y registro inmutable.</td>
+</tr>
+<tr>
+<td>ON-03</td>
+<td>Proteger la confidencialidad de los datos personales de gimnastas y jueces.</td>
+<td>Minimización, clasificación y cumplimiento de la Ley 18.331.</td>
+</tr>
+<tr>
+<td>ON-04</td>
+<td>Asegurar la disponibilidad del sistema durante las competencias.</td>
+<td>Resiliencia, continuidad y desacoplamiento del tablero público.</td>
+</tr>
+<tr>
+<td>ON-05</td>
+<td>Mantener la reputación de la Federación y la transparencia del torneo.</td>
+<td>Resultados oficiales verificables y publicación controlada.</td>
+</tr>
+<tr>
+<td>ON-06</td>
+<td>Publicar resultados en vivo y históricos para cualquier persona en Internet.</td>
+<td>Nueva superficie de ataque; disponibilidad y privacidad.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requisitos normativos y de negocio</strong></p>
+<ul>
+<li><strong>Ley N.º 18.331 de Protección de Datos Personales</strong> y su decreto reglamentario: tratamiento legítimo, seguro y limitado a la finalidad de los datos de gimnastas y jueces. Los gimnastas pueden ser menores de edad, lo que exige un análisis reforzado.</li>
+<li><strong>Principio de transparencia y equidad deportiva:</strong> cualquier involucrado que lo solicite debe poder conocer los puntajes de los competidores. La publicación en Internet satisface este principio, pero no habilita a publicar cualquier dato personal.</li>
+<li><strong>Disponibilidad durante el evento:</strong> el tablero público no puede convertirse en una dependencia del registro de puntajes. Una caída de Internet o del sitio público no debe detener la competencia.</li>
+</ul>
+<h3>1.3 Supuestos y límites del análisis</h3>
+<p><strong>Supuestos</strong></p>
+<ol>
+<li>El tablero publica únicamente resultados <strong>oficiales</strong>, es decir, validados por la mesa de control. La expresión “en vivo” se interpreta como una latencia objetivo menor a 60 segundos desde la oficialización, no como publicación instantánea de valores provisionales.</li>
+<li>Si el negocio exige mostrar valores provisionales, se mostrarán con una marca visual y textual inequívoca y no se usarán para rankings definitivos. La recomendación de este informe es publicar solo resultados oficiales.</li>
+<li>La Federación es la propietaria de las tablets de los jueces y aplica gestión de dispositivos (MDM).</li>
+<li>La red WiFi de la arena es controlada por la Federación y existe un SSID exclusivo para la aplicación.</li>
+<li>Los jueces, la mesa de control y los administradores se autentican; el público no se autentica.</li>
+<li>La Federación contratará un proveedor de CDN, WAF y protección anti-DDoS, y utilizará un proveedor de identidad (IdP).</li>
+<li>La base de competición no se expone directamente a Internet en ningún escenario.</li>
+<li>Las correcciones de puntajes se realizan mediante una nueva versión o un asiento compensatorio, nunca mediante la eliminación silenciosa del registro original.</li>
+<li>La publicación de resultados históricos se limita a datos deportivos y no incluye información de contacto, documentos ni datos de salud.</li>
+<li>Quedan fuera de alcance las apuestas deportivas, las integraciones con terceros y el tratamiento de imágenes o videos de gimnastas.</li>
+</ol>
+<p><strong>Fuera de alcance</strong></p>
+<ul>
+<li>Reglamento deportivo y algoritmo de puntuación de los jueces.</li>
+<li>Seguridad física de la arena, más allá de la red WiFi.</li>
+<li>Aplicaciones de terceros que consuman los resultados (se tratarán en una iteración futura).</li>
+<li>Prevención de fraude deportivo o manipulación de resultados por acuerdo entre personas, que excede el diseño técnico.</li>
+</ul>
+<h3>1.4 Activos a proteger</h3>
+<table><colgroup><col style="width:9.82%"><col style="width:36.81%"><col style="width:16.56%"><col style="width:36.81%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Activo</th>
+<th>Clasificación</th>
+<th>Impacto si se compromete</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A-01</td>
+<td>Puntajes oficiales y su historial de versiones.</td>
+<td>Integridad crítica</td>
+<td>Resultado injusto, pérdida de transparencia, acciones legales y daño reputacional.</td>
+</tr>
+<tr>
+<td>A-02</td>
+<td>Identidades y credenciales de jueces, mesa y administradores.</td>
+<td>Confidencial</td>
+<td>Suplantación, carga de puntajes falsos, acceso a funciones restringidas.</td>
+</tr>
+<tr>
+<td>A-03</td>
+<td>Datos personales de gimnastas (posiblemente menores) y jueces.</td>
+<td>Confidencial / regulado</td>
+<td>Sanción por la URCDP, daño a menores, pérdida de confianza.</td>
+</tr>
+<tr>
+<td>A-04</td>
+<td>Disponibilidad del sistema durante el torneo.</td>
+<td>Disponibilidad crítica</td>
+<td>Suspensión del torneo, pérdida de resultados, crisis pública.</td>
+</tr>
+<tr>
+<td>A-05</td>
+<td>Reputación y credibilidad de la Federación.</td>
+<td>Confidencial / reputacional</td>
+<td>Pérdida de patrocinios, cuestionamientos de equidad, renuncias.</td>
+</tr>
+<tr>
+<td>A-06</td>
+<td>Integridad del proceso de publicación.</td>
+<td>Integridad crítica</td>
+<td>Difusión de resultados falsos o incompletos.</td>
+</tr>
+<tr>
+<td>A-07</td>
+<td>Infraestructura, secretos y claves de firma.</td>
+<td>Restringido</td>
+<td>Compromiso total del sistema y de la cadena de publicación.</td>
+</tr>
+<tr>
+<td>A-08</td>
+<td>Registros de auditoría.</td>
+<td>Restringido</td>
+<td>Imposibilidad de investigar incidentes o acreditar acciones.</td>
+</tr>
+<tr>
+<td>A-09</td>
+<td>Disponibilidad y veracidad del tablero público.</td>
+<td>Disponibilidad / integridad</td>
+<td>Mala experiencia, desinformación, daño reputacional.</td>
+</tr>
+</tbody>
+</table>
+<h3>1.5 Criterios de riesgo y umbrales</h3>
+<p>Se utiliza <strong>DREAD</strong> para priorizar, calculado como el promedio de Daño (D), Reproducibilidad (R), Explotabilidad (E), Usuarios afectados (A) y Detectabilidad (D). La escala es de 1 a 10.</p>
+<table><colgroup><col style="width:15.91%"><col style="width:15.91%"><col style="width:68.18%"></colgroup>
+<thead>
+<tr>
+<th>Puntaje DREAD</th>
+<th>Prioridad</th>
+<th>Tratamiento exigido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8,0 – 10,0</td>
+<td>Crítica</td>
+<td>Mitigación obligatoria antes de salir a producción. No se acepta sin aprobación del dueño del negocio y del responsable de seguridad.</td>
+</tr>
+<tr>
+<td>7,0 – 7,9</td>
+<td>Alta</td>
+<td>Mitigación obligatoria; puede aceptarse residual medio con plan y fecha.</td>
+</tr>
+<tr>
+<td>5,5 – 6,9</td>
+<td>Media</td>
+<td>Mitigación planificada; seguimiento en el backlog.</td>
+</tr>
+<tr>
+<td>Menor a 5,5</td>
+<td>Baja</td>
+<td>Se acepta o se monitorea.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Umbral de riesgo residual:</strong> se considera aceptable un residual menor o igual a 3,9 (bajo). Un residual entre 4,0 y 5,9 (medio) requiere aceptación formal del dueño del proceso de negocio, con justificación, compensaciones y fecha de revisión. Un residual mayor o igual a 6,0 (alto) impide la salida a producción.</p>
+<p>DREAD es una herramienta de priorización y no una medida absoluta de probabilidad. Se complementa con el contexto del negocio, el valor del activo y los controles compensatorios existentes.</p>
+<hr>
+<h2>2. Entregable I — Arquitectura propuesta</h2>
+<h3>2.1 Vista de arquitectura</h3>
+<p><img alt="Figura 1. Arquitectura propuesta para el tablero público" src="diagramas/arquitectura.png"></p>
+<p class="caption"><strong>Figura 1.</strong> Arquitectura propuesta. El plano de escritura permanece en la red interna; el plano de lectura pública se despliega en una DMZ sin ruta hacia la red interna. La publicación es un flujo unidireccional de snapshots firmados.</p>
+<p>La arquitectura mantiene el tablero público como un <strong>producto de datos derivado</strong>, no como una vista directa de la base de competición. Esto es lo que responde estructuralmente a la preocupación del presidente: desde Internet no existe una ruta de escritura hacia los puntajes, ni siquiera si un atacante compromete el sitio público.</p>
+<h3>2.2 Principios de diseño seguro</h3>
+<ol>
+<li><strong>Separación de planos:</strong> el plano de escritura (competición) y el plano de lectura pública (tablero) son independientes en red, cómputo, base de datos y credenciales.</li>
+<li><strong>Flujo unidireccional:</strong> los resultados viajan desde la red interna hacia la DMZ; la DMZ nunca inicia conexiones hacia la red interna.</li>
+<li><strong>Mínimo privilegio y denegación por defecto:</strong> cada componente y cada usuario tiene solo los permisos necesarios; toda ruta no declarada se deniega.</li>
+<li><strong>No confiar en la red:</strong> el acceso de operadores se autentica y autoriza en cada solicitud, incluso dentro de la red del torneo.</li>
+<li><strong>Minimización de datos públicos:</strong> el tablero publica solo campos deportivos necesarios; los datos personales sensibles nunca salen del plano interno.</li>
+<li><strong>Integridad verificable y no repudio:</strong> cada puntaje y cada snapshot de publicación tienen identidad, sello de tiempo, firma y registro de auditoría inmutable.</li>
+<li><strong>Disponibilidad del scoring independiente del tablero:</strong> una falla de Internet, del CDN o del sitio público no afecta el registro de puntajes.</li>
+<li><strong>Defensa en profundidad:</strong> controles en el borde, la red, la aplicación, los datos, la identidad y la operación.</li>
+<li><strong>Seguridad por diseño y por defecto:</strong> la configuración inicial es la segura; las funciones peligrosas no se habilitan por conveniencia.</li>
+<li><strong>Observabilidad y mejora continua:</strong> logs, métricas, alertas y revisión periódica del modelo de amenazas.</li>
+</ol>
+<h3>2.3 Componentes y responsabilidades</h3>
+<table><colgroup><col style="width:19.32%"><col style="width:12.50%"><col style="width:34.09%"><col style="width:34.09%"></colgroup>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Zona</th>
+<th>Responsabilidad</th>
+<th>Controles principales</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CDN + WAF + Anti-DDoS</td>
+<td>Borde del proveedor</td>
+<td>Terminación TLS, caché, filtrado de tráfico malicioso, mitigación DDoS.</td>
+<td>TLS 1.3, WAF con OWASP CRS, rate limiting, bot management, origin shield, autenticación de origen.</td>
+</tr>
+<tr>
+<td>Sitio público (React SPA estática)</td>
+<td>DMZ</td>
+<td>Interfaz de consulta para el público.</td>
+<td>Sin secretos, CSP estricta, SRI, source maps deshabilitados, build inmutable, cabeceras de seguridad.</td>
+</tr>
+<tr>
+<td>API pública</td>
+<td>DMZ</td>
+<td>Consulta de resultados en vivo e históricos.</td>
+<td>Solo <code>GET</code>, validación de esquema, paginación, ETag, errores genéricos, rol de base de datos <code>SELECT</code> únicamente.</td>
+</tr>
+<tr>
+<td>Réplica pública / caché</td>
+<td>DMZ</td>
+<td>Almacena exclusivamente los datos publicables.</td>
+<td>Solo datos derivados y minimizados, sin PII sensible, sin credenciales de escritura, refresco idempotente.</td>
+</tr>
+<tr>
+<td>Receptor de publicación</td>
+<td>DMZ</td>
+<td>Recibe y valida los snapshots del publicador.</td>
+<td>mTLS, verificación de firma JWS, control de secuencia y frescura, idempotencia, auditoría.</td>
+</tr>
+<tr>
+<td>Servicio de publicación</td>
+<td>Red interna</td>
+<td>Lee resultados oficiales, minimiza, agrega y firma snapshots.</td>
+<td>Outbox/CDC, whitelist de campos, firma Ed25519, salida únicamente, reintentos idempotentes.</td>
+</tr>
+<tr>
+<td>API interna (Spring)</td>
+<td>Red interna</td>
+<td>Registro, validación y oficialización de puntajes.</td>
+<td>OIDC, RBAC/ABAC, validación de rango, idempotencia, máquina de estados, auditoría.</td>
+</tr>
+<tr>
+<td>IdP / SSO</td>
+<td>Red interna</td>
+<td>Autenticación de jueces, mesa y administradores.</td>
+<td>OIDC, MFA, tokens de corta duración, claims de dispositivo, políticas de acceso condicional.</td>
+</tr>
+<tr>
+<td>PostgreSQL primaria</td>
+<td>Red interna</td>
+<td>Fuente de verdad de la competición.</td>
+<td>Subred privada, cifrado en reposo, sin Internet, usuarios de mínimo privilegio, backups.</td>
+</tr>
+<tr>
+<td>App Android de jueces</td>
+<td>Red del torneo</td>
+<td>Ingreso de puntajes desde tablets.</td>
+<td>MDM, certificado de dispositivo/mTLS, certificate pinning, cola offline cifrada, sin logs de puntajes, borrado remoto.</td>
+</tr>
+<tr>
+<td>SPA de mesa de control</td>
+<td>Red interna</td>
+<td>Validación y oficialización de puntajes.</td>
+<td>Acceso solo desde red interna/VPN, OIDC, MFA, RBAC, sesión corta.</td>
+</tr>
+<tr>
+<td>Consola de administración</td>
+<td>Red de gestión</td>
+<td>Administración de usuarios, roles y configuración.</td>
+<td>VPN, PAM, MFA, acceso just-in-time, lista de IP permitidas, sin exposición a Internet.</td>
+</tr>
+<tr>
+<td>SIEM / logs WORM</td>
+<td>Red interna</td>
+<td>Centralización y retención inmutable de auditoría.</td>
+<td>Hash chain, WORM, alertas, retención, control de acceso.</td>
+</tr>
+<tr>
+<td>Backups</td>
+<td>Cuenta/región separada</td>
+<td>Recuperación ante desastre.</td>
+<td>Cifrado, inmutabilidad (object lock), pruebas de restauración, acceso separado.</td>
+</tr>
+<tr>
+<td>KMS / Secrets Manager</td>
+<td>Red de gestión</td>
+<td>Custodia de claves y secretos.</td>
+<td>Rotación, auditoría, acceso por rol, credenciales efímeras.</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>Red de gestión</td>
+<td>Construcción y despliegue seguro.</td>
+<td>SAST, DAST, SCA, SBOM, artefactos firmados, IaC scanning, aprobaciones.</td>
+</tr>
+</tbody>
+</table>
+<h3>2.4 Zonas de confianza y segmentación de red</h3>
+<table><colgroup><col style="width:13.66%"><col style="width:16.15%"><col style="width:32.92%"><col style="width:37.27%"></colgroup>
+<thead>
+<tr>
+<th>Zona</th>
+<th>Nivel de confianza</th>
+<th>Contenido</th>
+<th>Reglas de comunicación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Internet</td>
+<td>No confiable</td>
+<td>Usuarios públicos, atacantes, DNS público.</td>
+<td>Solo HTTPS 443 hacia el CDN. Sin acceso directo a DMZ ni a red interna.</td>
+</tr>
+<tr>
+<td>Borde gestionado</td>
+<td>Semi-confiable (proveedor)</td>
+<td>CDN, WAF, anti-DDoS.</td>
+<td>Hacia el origen solo con autenticación de origen; purgas firmadas; MFA en el panel del proveedor.</td>
+</tr>
+<tr>
+<td>DMZ pública</td>
+<td>Baja</td>
+<td>Sitio, API pública, réplica, receptor de publicación.</td>
+<td>Sin ruta hacia la red interna. Salida a Internet restringida. Solo recibe publicación desde el publicador interno.</td>
+</tr>
+<tr>
+<td>Red interna del torneo</td>
+<td>Alta</td>
+<td>API interna, IdP, base primaria, publicador, SIEM.</td>
+<td>Acceso desde la red del torneo o VPN; nunca desde Internet ni desde la DMZ.</td>
+</tr>
+<tr>
+<td>Red de gestión</td>
+<td>Alta</td>
+<td>VPN, PAM, CI/CD, KMS, administración.</td>
+<td>Acceso separado, MFA, just-in-time, registro de sesiones.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Reglas de firewall relevantes</strong></p>
+<ul>
+<li><code>Internet → CDN</code>: 443/TCP únicamente.</li>
+<li><code>CDN → DMZ</code>: 443/TCP con autenticación de origen (mTLS o cabecera firmada).</li>
+<li><code>DMZ → Internet</code>: solo actualizaciones, OCSP y NTP; sin acceso a la red interna.</li>
+<li><code>DMZ → Red interna</code>: <strong>denegado por completo</strong>.</li>
+<li><code>Red interna → DMZ</code>: solo el servicio de publicación, 443/TCP, mTLS, salida unidireccional.</li>
+<li><code>Red de gestión → Red interna</code>: VPN + PAM, puertos administrativos específicos, MFA.</li>
+<li><code>Red interna → Internet</code>: solo a través de proxy de salida con allowlist.</li>
+</ul>
+<h3>2.5 Dependencias externas</h3>
+<table><colgroup><col style="width:9.94%"><col style="width:22.98%"><col style="width:29.81%"><col style="width:37.27%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Dependencia</th>
+<th>Descripción</th>
+<th>Control esperado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DE-01</td>
+<td>Proveedor CDN/WAF/Anti-DDoS</td>
+<td>Borde de Internet, caché y mitigación DDoS.</td>
+<td>Contrato con SLA, MFA, registro de cambios, origin shield, revisión de configuración.</td>
+</tr>
+<tr>
+<td>DE-02</td>
+<td>DNS público y autoridad certificadora</td>
+<td>Resolución y certificados TLS.</td>
+<td>DNSSEC, CAA, registrar lock, MFA en el registrador, monitoreo de Certificate Transparency.</td>
+</tr>
+<tr>
+<td>DE-03</td>
+<td>Internet / ISP de la arena</td>
+<td>Conectividad del público y de la red del torneo.</td>
+<td>Enlaces redundantes, monitoreo, plan de contingencia.</td>
+</tr>
+<tr>
+<td>DE-04</td>
+<td>IdP / SSO</td>
+<td>Autenticación de operadores.</td>
+<td>OIDC, MFA, políticas de acceso condicional, revisión de accesos.</td>
+</tr>
+<tr>
+<td>DE-05</td>
+<td>PostgreSQL</td>
+<td>Motor de base de datos.</td>
+<td>Versión soportada, parches, cifrado, backups, monitoreo.</td>
+</tr>
+<tr>
+<td>DE-06</td>
+<td>Tablets Android y MDM</td>
+<td>Dispositivos de los jueces.</td>
+<td>MDM, cifrado, bloqueo, borrado remoto, inventario, actualizaciones.</td>
+</tr>
+<tr>
+<td>DE-07</td>
+<td>KMS / Secrets Manager</td>
+<td>Custodia de claves y secretos.</td>
+<td>Rotación, separación de funciones, auditoría.</td>
+</tr>
+<tr>
+<td>DE-08</td>
+<td>SIEM / almacenamiento WORM</td>
+<td>Auditoría y detección.</td>
+<td>Retención, inmutabilidad, alertas, control de acceso.</td>
+</tr>
+<tr>
+<td>DE-09</td>
+<td>CI/CD y registro de artefactos</td>
+<td>Construcción y despliegue.</td>
+<td>SAST/DAST/SCA, SBOM, firma, aprobaciones, segregación de ambientes.</td>
+</tr>
+<tr>
+<td>DE-10</td>
+<td>Almacenamiento de backups</td>
+<td>Recuperación.</td>
+<td>Cifrado, inmutabilidad, cuenta separada, pruebas de restauración.</td>
+</tr>
+</tbody>
+</table>
+<h3>2.6 Puntos de entrada y niveles de confianza</h3>
+<table><colgroup><col style="width:10.60%"><col style="width:16.56%"><col style="width:28.48%"><col style="width:32.45%"><col style="width:11.92%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Punto de entrada</th>
+<th>Descripción</th>
+<th>Protocolo / autenticación</th>
+<th>Nivel de confianza</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EP-01</td>
+<td>HTTPS público</td>
+<td>URL del tablero público.</td>
+<td>HTTPS 443; anónimo.</td>
+<td>N0</td>
+</tr>
+<tr>
+<td>EP-02</td>
+<td>API pública</td>
+<td>Endpoints <code>/api/public/*</code>.</td>
+<td>HTTPS; solo <code>GET</code>; anónimo.</td>
+<td>N0</td>
+</tr>
+<tr>
+<td>EP-03</td>
+<td>Sitio estático</td>
+<td>Recursos del front público.</td>
+<td>HTTPS; anónimo.</td>
+<td>N0</td>
+</tr>
+<tr>
+<td>EP-04</td>
+<td>API interna</td>
+<td>Endpoints de registro y administración.</td>
+<td>HTTPS + OIDC + mTLS; jueces, mesa, admin.</td>
+<td>N2, N3, N4</td>
+</tr>
+<tr>
+<td>EP-05</td>
+<td>App Android</td>
+<td>Aplicación de jueces.</td>
+<td>mTLS + OIDC + firma de dispositivo.</td>
+<td>N2</td>
+</tr>
+<tr>
+<td>EP-06</td>
+<td>SPA de mesa de control</td>
+<td>Validación y oficialización.</td>
+<td>OIDC + MFA; solo red interna/VPN.</td>
+<td>N3</td>
+</tr>
+<tr>
+<td>EP-07</td>
+<td>Consola de administración</td>
+<td>Gestión de usuarios, roles y configuración.</td>
+<td>VPN + PAM + MFA + JIT.</td>
+<td>N4</td>
+</tr>
+<tr>
+<td>EP-08</td>
+<td>Ingesta de publicación</td>
+<td>Recepción de snapshots.</td>
+<td>mTLS + JWS; solo red interna.</td>
+<td>N5</td>
+</tr>
+<tr>
+<td>EP-09</td>
+<td>CI/CD</td>
+<td>Despliegue de artefactos.</td>
+<td>OIDC federado, aprobaciones, artefactos firmados.</td>
+<td>N5</td>
+</tr>
+<tr>
+<td>EP-10</td>
+<td>Monitoreo / SIEM</td>
+<td>Recolección de logs y métricas.</td>
+<td>mTLS, credenciales de servicio.</td>
+<td>N5</td>
+</tr>
+</tbody>
+</table>
+<table><colgroup><col style="width:15.38%"><col style="width:18.68%"><col style="width:65.93%"></colgroup>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Nombre</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>N0</td>
+<td>Anónimo Internet</td>
+<td>Cualquier persona o bot en Internet, sin autenticación y sin relación con la Federación.</td>
+</tr>
+<tr>
+<td>N1</td>
+<td>Anónimo red local</td>
+<td>Persona conectada a la WiFi de la arena, sin autenticación. Se usa solo como referencia; el tablero público no requiere este nivel.</td>
+</tr>
+<tr>
+<td>N2</td>
+<td>Juez</td>
+<td>Usuario autenticado que evalúa rutinas e ingresa puntajes de los aparatos que tiene asignados.</td>
+</tr>
+<tr>
+<td>N3</td>
+<td>Mesa de control</td>
+<td>Usuario que valida, corrige y oficializa puntajes.</td>
+</tr>
+<tr>
+<td>N4</td>
+<td>Administrador</td>
+<td>Usuario con acceso a la configuración y gestión de identidades.</td>
+</tr>
+<tr>
+<td>N5</td>
+<td>Servicio</td>
+<td>Identidad de servicio para publicación, monitoreo o despliegue.</td>
+</tr>
+</tbody>
+</table>
+<h3>2.7 Flujo de publicación de resultados</h3>
+<p><strong>Paso a paso</strong></p>
+<ol>
+<li>El juez se autentica en la app con OIDC + MFA y el certificado del dispositivo. El token es de corta duración y está ligado al dispositivo.</li>
+<li>El juez ingresa el puntaje. La app valida el rango 0–99,999, agrega un identificador de idempotencia y firma la solicitud con la clave del dispositivo.</li>
+<li>La API interna verifica la firma, el token, el rol y la asignación del juez al torneo y al aparato. Registra el puntaje como <strong>provisional</strong> y emite un evento de auditoría.</li>
+<li>La mesa de control revisa el puntaje. Si corresponde, lo oficializa; si hay un error, genera una nueva versión con motivo y doble control. Nunca se borra el registro anterior.</li>
+<li>El servicio de publicación lee los resultados oficiales mediante outbox/CDC, aplica la whitelist de campos, calcula el ranking y firma un snapshot con Ed25519.</li>
+<li>El snapshot viaja por mTLS al receptor de la DMZ. El receptor verifica firma, esquema, secuencia, sello de tiempo y frescura; rechaza duplicados y replay.</li>
+<li>El receptor actualiza la réplica pública de forma idempotente y audita el evento.</li>
+<li>El usuario consulta el tablero a través del CDN/WAF. La API pública responde solo con campos públicos y oficiales. Si la réplica está desactualizada, se muestra la marca de “última actualización” en lugar de datos inventados.</li>
+</ol>
+<h3>2.8 Decisiones de diseño y trade-offs</h3>
+<table><colgroup><col style="width:20.35%"><col style="width:26.55%"><col style="width:26.55%"><col style="width:26.55%"></colgroup>
+<thead>
+<tr>
+<th>Decisión</th>
+<th>Alternativa descartada</th>
+<th>Justificación</th>
+<th>Costo / trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Réplica pública separada y solo lectura.</td>
+<td>Exponer la base de competición con un usuario de solo lectura.</td>
+<td>Elimina el camino directo a la base primaria y permite publicar solo datos minimizados.</td>
+<td>Mayor complejidad de replicación y costo de infraestructura.</td>
+</tr>
+<tr>
+<td>Publicación unidireccional firmada.</td>
+<td>La DMZ consulta la API interna.</td>
+<td>Evita que un compromiso de la DMZ se convierta en un pivote hacia la red interna.</td>
+<td>Latencia de publicación y necesidad de manejar reintentos e idempotencia.</td>
+</tr>
+<tr>
+<td>Publicar solo resultados oficiales.</td>
+<td>Publicar cada puntaje apenas se ingresa.</td>
+<td>Protege la integridad y la reputación; evita difundir errores.</td>
+<td>Menor inmediatez; requiere explicar la semántica de “en vivo”.</td>
+</tr>
+<tr>
+<td>mTLS + certificado de dispositivo para jueces.</td>
+<td>Solo usuario y contraseña o solo JWT.</td>
+<td>Ata el token al dispositivo autorizado y dificulta el uso de credenciales robadas.</td>
+<td>Complejidad operativa de MDM y rotación de certificados.</td>
+</tr>
+<tr>
+<td>MFA para jueces y mesa.</td>
+<td>Solo contraseña.</td>
+<td>Reduce suplantación y credential stuffing.</td>
+<td>Fricción en el ingreso; requiere capacitación y códigos de respaldo.</td>
+</tr>
+<tr>
+<td>Minimización de datos públicos.</td>
+<td>Publicar toda la ficha del gimnasta.</td>
+<td>Cumple Ley 18.331 y reduce el impacto de una fuga.</td>
+<td>Menor riqueza informativa para el público.</td>
+</tr>
+<tr>
+<td>CDN/WAF gestionado.</td>
+<td>Infraestructura propia en la arena.</td>
+<td>Absorbe DDoS y descarga la operación del evento.</td>
+<td>Dependencia de un tercero y costo recurrente.</td>
+</tr>
+<tr>
+<td>Administración por VPN + PAM.</td>
+<td>Panel de administración accesible por Internet.</td>
+<td>Elimina una superficie de ataque crítica.</td>
+<td>Menos comodidad para administradores; requiere procesos.</td>
+</tr>
+<tr>
+<td>Tablero público desacoplado.</td>
+<td>Compartir clúster con la API interna.</td>
+<td>La caída o la carga del tablero no afecta el registro de puntajes.</td>
+<td>Duplicación de infraestructura y observabilidad.</td>
+</tr>
+</tbody>
+</table>
+<h3>2.9 Requisitos de seguridad derivados</h3>
+<table><colgroup><col style="width:10.67%"><col style="width:40.00%"><col style="width:9.33%"><col style="width:40.00%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requisito</th>
+<th>Prioridad</th>
+<th>Verificación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RS-01</td>
+<td>La API pública no debe exponer métodos de escritura.</td>
+<td>Must</td>
+<td>Inventario de rutas, pruebas de verbos y DAST.</td>
+</tr>
+<tr>
+<td>RS-02</td>
+<td>El usuario de base de datos de la API pública solo puede ejecutar <code>SELECT</code>.</td>
+<td>Must</td>
+<td>Prueba de permisos y revisión de configuración.</td>
+</tr>
+<tr>
+<td>RS-03</td>
+<td>No debe existir ruta de red desde la DMZ hacia la red interna.</td>
+<td>Must</td>
+<td>Revisión de security groups, firewall y prueba de conectividad.</td>
+</tr>
+<tr>
+<td>RS-04</td>
+<td>Cada snapshot debe estar firmado y verificarse antes de publicarse.</td>
+<td>Must</td>
+<td>Prueba de tamper y replay.</td>
+</tr>
+<tr>
+<td>RS-05</td>
+<td>Jueces, mesa y administradores deben usar MFA.</td>
+<td>Must</td>
+<td>Prueba de autenticación y revisión de políticas del IdP.</td>
+</tr>
+<tr>
+<td>RS-06</td>
+<td>Los tokens deben ser de corta duración y estar ligados al dispositivo.</td>
+<td>Must</td>
+<td>Prueba de expiración, revocación y reutilización.</td>
+</tr>
+<tr>
+<td>RS-07</td>
+<td>La autorización debe validarse en el servidor por rol y por objeto.</td>
+<td>Must</td>
+<td>Pruebas de IDOR/BOLA y revisión de código.</td>
+</tr>
+<tr>
+<td>RS-08</td>
+<td>Toda modificación de puntaje debe quedar en auditoría inmutable.</td>
+<td>Must</td>
+<td>Prueba de escritura, borrado y verificación de hash.</td>
+</tr>
+<tr>
+<td>RS-09</td>
+<td>El tablero solo debe publicar campos de la whitelist aprobada.</td>
+<td>Must</td>
+<td>Prueba de contrato de API y revisión de datos.</td>
+</tr>
+<tr>
+<td>RS-10</td>
+<td>Todo el tráfico debe usar TLS 1.2+ (preferentemente 1.3) y HSTS.</td>
+<td>Must</td>
+<td>Escaneo TLS y revisión de cabeceras.</td>
+</tr>
+<tr>
+<td>RS-11</td>
+<td>El borde debe aplicar WAF, rate limiting y mitigación DDoS.</td>
+<td>Must</td>
+<td>Prueba de carga y revisión de configuración.</td>
+</tr>
+<tr>
+<td>RS-12</td>
+<td>Los errores no deben revelar stack traces, rutas internas ni secretos.</td>
+<td>Must</td>
+<td>Pruebas de error y revisión de respuestas.</td>
+</tr>
+<tr>
+<td>RS-13</td>
+<td>Los secretos deben gestionarse en un vault y rotarse.</td>
+<td>Must</td>
+<td>Escaneo de repositorios, imágenes y logs.</td>
+</tr>
+<tr>
+<td>RS-14</td>
+<td>El pipeline debe incluir SAST, DAST, SCA y SBOM.</td>
+<td>Should</td>
+<td>Evidencia de pipeline y revisión de hallazgos.</td>
+</tr>
+<tr>
+<td>RS-15</td>
+<td>Los backups deben ser inmutables y probarse periódicamente.</td>
+<td>Must</td>
+<td>Simulacro de restauración.</td>
+</tr>
+<tr>
+<td>RS-16</td>
+<td>La caída del tablero público no debe afectar el registro de puntajes.</td>
+<td>Must</td>
+<td>Prueba de caos y revisión de arquitectura.</td>
+</tr>
+<tr>
+<td>RS-17</td>
+<td>Se debe realizar una evaluación de impacto en privacidad.</td>
+<td>Must</td>
+<td>Documento aprobado por el responsable de privacidad.</td>
+</tr>
+<tr>
+<td>RS-18</td>
+<td>Debe existir un runbook de respuesta a incidentes y contacto 24/7.</td>
+<td>Should</td>
+<td>Simulacro y revisión de contactos.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>3. Entregable II — Paso 1: Determinar el alcance</h2>
+<h3>3.1 Proceso OWASP aplicado</h3>
+<p>Se aplica el proceso de cuatro pasos presentado en el teórico:</p>
+<ol>
+<li><strong>Determinar el alcance:</strong> describir el sistema, el nuevo requerimiento, los activos, las dependencias, los puntos de entrada, los niveles de confianza y los DFD.</li>
+<li><strong>Determinar amenazas:</strong> analizar cada componente y flujo con STRIDE, describir escenarios y calcular DREAD.</li>
+<li><strong>Determinar contramedidas y mitigaciones:</strong> elegir el tratamiento (aceptar, eliminar, mitigar, transferir), definir controles y estimar el riesgo residual.</li>
+<li><strong>Evaluar el análisis:</strong> verificar si quedan riesgos por encima del umbral, documentar excepciones y planificar la siguiente iteración.</li>
+</ol>
+<p>Este documento constituye la <strong>segunda iteración</strong> del modelo: la primera cubrió el sistema de gestión de torneos con tablets para jueces; esta incorpora el tablero público en Internet y revisa las amenazas heredadas a la luz de la nueva exposición.</p>
+<h3>3.2 DFD nivel 1</h3>
+<p><img alt="Figura 2. DFD nivel 1" src="diagramas/dfd-nivel-1.png"></p>
+<p class="caption"><strong>Figura 2.</strong> DFD nivel 1. Se incorporan los procesos de publicación y consulta pública, y la réplica pública como almacén separado de la base de competición.</p>
+<div class="page-break"></div><h3>3.3 DFD nivel 2: registro y validación de puntajes</h3>
+<p><img alt="Figura 3. DFD nivel 2 de registro y validación" src="diagramas/dfd-nivel-2-registro.png"></p>
+<p class="caption"><strong>Figura 3.</strong> DFD nivel 2 del plano de escritura. La autenticación, el registro y la oficialización ocurren en la red interna; la mesa de control valida antes de que un resultado pueda publicarse.</p>
+<h3>3.4 DFD nivel 2: publicación y consulta</h3>
+<p><img alt="Figura 4. DFD nivel 2 de publicación y consulta" src="diagramas/dfd-nivel-2-publicacion.png"></p>
+<p class="caption"><strong>Figura 4.</strong> DFD nivel 2 del plano de lectura. El publicador envía un snapshot firmado a la DMZ; la consulta pública solo lee la réplica y la caché.</p>
+<h3>3.5 Flujos y niveles de confianza</h3>
+<table><colgroup><col style="width:9.64%"><col style="width:16.27%"><col style="width:25.30%"><col style="width:31.93%"><col style="width:16.87%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Origen → Destino</th>
+<th>Datos</th>
+<th>Protección</th>
+<th>Cruza frontera</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>Usuario Internet → CDN</td>
+<td>Solicitud HTTPS de consulta.</td>
+<td>TLS 1.3, WAF, rate limiting.</td>
+<td>Internet → borde</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>CDN → Sitio público</td>
+<td>Contenido estático.</td>
+<td>TLS, autenticación de origen.</td>
+<td>Borde → DMZ</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>CDN / front → API pública</td>
+<td><code>GET /api/public/*</code>.</td>
+<td>TLS, validación de esquema.</td>
+<td>Borde → DMZ</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>API pública → réplica/caché</td>
+<td>Consulta <code>SELECT</code>.</td>
+<td>Rol de solo lectura, red privada de DMZ.</td>
+<td>Interno de DMZ</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>Juez / mesa / admin → IdP</td>
+<td>Credenciales y MFA.</td>
+<td>OIDC, TLS, MFA.</td>
+<td>Red del torneo → IdP</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>App del juez → API interna</td>
+<td>Puntaje, Token JWT, firma del dispositivo.</td>
+<td>mTLS, JWT corto, firma, idempotencia.</td>
+<td>Red del torneo → interna</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>SPA de mesa → API interna</td>
+<td>Validación y oficialización.</td>
+<td>OIDC, MFA, mTLS, RBAC.</td>
+<td>Red interna</td>
+</tr>
+<tr>
+<td>F8</td>
+<td>API interna → BD primaria</td>
+<td>Escritura de puntaje y versión.</td>
+<td>TLS, usuario de mínimo privilegio, transacción.</td>
+<td>Red interna</td>
+</tr>
+<tr>
+<td>F9</td>
+<td>API interna → BD primaria</td>
+<td>Lectura para validación.</td>
+<td>TLS, usuario de lectura.</td>
+<td>Red interna</td>
+</tr>
+<tr>
+<td>F10</td>
+<td>API interna ↔ IdP</td>
+<td>Validación de token y claims.</td>
+<td>OIDC, TLS, cache de JWKS.</td>
+<td>Red interna</td>
+</tr>
+<tr>
+<td>F11</td>
+<td>Publicador → BD primaria</td>
+<td>Lectura de resultados oficiales.</td>
+<td>Usuario de solo lectura, outbox/CDC.</td>
+<td>Red interna</td>
+</tr>
+<tr>
+<td>F12</td>
+<td>Publicador → receptor DMZ</td>
+<td>Snapshot firmado.</td>
+<td>mTLS, JWS, secuencia, timestamp.</td>
+<td>Interna → DMZ (salida única)</td>
+</tr>
+<tr>
+<td>F13</td>
+<td>Receptor → réplica pública</td>
+<td>Upsert idempotente.</td>
+<td>Red privada de DMZ, credencial de escritura limitada.</td>
+<td>Interno de DMZ</td>
+</tr>
+<tr>
+<td>F14</td>
+<td>Componentes → SIEM</td>
+<td>Eventos de auditoría.</td>
+<td>mTLS, hash chain, retención WORM.</td>
+<td>Hacia red interna</td>
+</tr>
+<tr>
+<td>F15</td>
+<td>Administrador → API interna</td>
+<td>Gestión de usuarios y configuración.</td>
+<td>VPN, PAM, MFA, JIT.</td>
+<td>Gestión → interna</td>
+</tr>
+<tr>
+<td>F16</td>
+<td>CI/CD → componentes</td>
+<td>Artefactos y configuraciones.</td>
+<td>OIDC federado, firma, aprobaciones.</td>
+<td>Gestión → interna/DMZ</td>
+</tr>
+<tr>
+<td>F17</td>
+<td>BD primaria → backups</td>
+<td>Copia cifrada.</td>
+<td>Cifrado, inmutabilidad, cuenta separada.</td>
+<td>Interna → almacenamiento</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>4. Paso 2: Determinar amenazas</h2>
+<h3>4.1 Método</h3>
+<p>Para cada elemento y flujo del DFD se aplicaron las seis categorías STRIDE:</p>
+<ul>
+<li><strong>S — Spoofing:</strong> suplantación de identidad de usuario, dispositivo o servicio.</li>
+<li><strong>T — Tampering:</strong> alteración no autorizada de datos, código o configuraciones.</li>
+<li><strong>R — Repudiation:</strong> negación de una acción sin evidencia que la contradiga.</li>
+<li><strong>I — Information Disclosure:</strong> exposición de información a quien no debe acceder.</li>
+<li><strong>D — Denial of Service:</strong> interrupción o degradación de la disponibilidad.</li>
+<li><strong>E — Elevation of Privilege:</strong> obtención de permisos superiores a los autorizados.</li>
+</ul>
+<p>Cada amenaza se puntúa con DREAD y se clasifica según la tabla de la sección 1.5. Las amenazas nuevas se identifican con el prefijo <code>NT</code>; las heredadas, con <code>HR</code>.</p>
+<h3>4.2 Amenazas del nuevo requerimiento</h3>
+<table><colgroup><col style="width:9.64%"><col style="width:8.43%"><col style="width:36.14%"><col style="width:15.66%"><col style="width:13.25%"><col style="width:8.43%"><col style="width:8.43%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>STRIDE</th>
+<th>Amenaza / escenario</th>
+<th>Elemento o flujo</th>
+<th>D/R/E/A/D</th>
+<th>Puntaje</th>
+<th>Prioridad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NT-01</td>
+<td>T</td>
+<td>Un atacante desde Internet intenta escribir o alterar un puntaje usando la superficie pública: prueba <code>PUT/PATCH/DELETE</code>, manipula identificadores, aprovecha mass assignment o una inyección en filtros de la API pública.</td>
+<td>EP-02, F3, F4</td>
+<td>10/8/6/10/8</td>
+<td>8,4</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>NT-02</td>
+<td>T</td>
+<td>Envenenamiento de caché o compromiso de una cuenta del proveedor CDN para mostrar resultados falsos o alterar los publicados.</td>
+<td>CDN, F2, F3</td>
+<td>9/6/4/10/5</td>
+<td>6,8</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>NT-03</td>
+<td>T</td>
+<td>Alteración del snapshot en tránsito entre el publicador interno y el receptor de la DMZ mediante MITM, replay o reemplazo del mensaje.</td>
+<td>F12</td>
+<td>9/5/4/10/5</td>
+<td>6,6</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>NT-04</td>
+<td>T</td>
+<td>Publicación de resultados provisionales o no validados, difundiendo un error o una manipulación como si fuera oficial.</td>
+<td>F11, F12, F13</td>
+<td>7/8/6/10/7</td>
+<td>7,6</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>NT-05</td>
+<td>S</td>
+<td>Suplantación del sitio público mediante secuestro de DNS, typosquatting o phishing para difundir resultados falsos o robar credenciales de jueces.</td>
+<td>DNS, CDN, EP-01</td>
+<td>8/5/5/10/6</td>
+<td>6,8</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>NT-06</td>
+<td>S</td>
+<td>Suplantación de un juez con credenciales robadas o obtenidas por phishing desde Internet.</td>
+<td>F5, F6, EP-04</td>
+<td>10/7/6/8/7</td>
+<td>7,6</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>NT-07</td>
+<td>S</td>
+<td>Un servicio malicioso se presenta ante el receptor de la DMZ como el publicador legítimo y envía snapshots falsos.</td>
+<td>EP-08, F12</td>
+<td>9/5/4/10/5</td>
+<td>6,6</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>NT-08</td>
+<td>I</td>
+<td>Exposición de datos personales de gimnastas —posiblemente menores— o de jueces en el tablero: nombres completos, documentos, fechas de nacimiento, contactos, escuela o datos de salud.</td>
+<td>EP-02, F4</td>
+<td>8/10/9/10/6</td>
+<td>8,6</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>NT-09</td>
+<td>I</td>
+<td>Divulgación de información interna por errores verbosos, source maps, Actuator/Swagger expuestos, metadatos, identificadores internos o endpoints de administración.</td>
+<td>Sitio público, API pública</td>
+<td>7/8/8/10/7</td>
+<td>8,0</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>NT-10</td>
+<td>I</td>
+<td>Scraping o enumeración masiva de resultados históricos y construcción de perfiles de gimnastas.</td>
+<td>EP-02, F1, F4</td>
+<td>2/10/10/6/10</td>
+<td>7,6</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>NT-11</td>
+<td>D</td>
+<td>DDoS o HTTP flood contra el tablero público durante una competencia, afectando la disponibilidad y la reputación.</td>
+<td>CDN, EP-01, EP-02</td>
+<td>5/9/9/10/10</td>
+<td>8,6</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>NT-12</td>
+<td>D</td>
+<td>Agotamiento de recursos mediante paginación abusiva, ordenamientos costosos, búsquedas con comodines o exportaciones masivas en la API pública.</td>
+<td>API pública, F4</td>
+<td>3/10/10/7/9</td>
+<td>7,8</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>NT-13</td>
+<td>D</td>
+<td>Pivote desde la DMZ comprometida hacia la red interna para afectar el registro de puntajes.</td>
+<td>Segmentación DMZ/interna</td>
+<td>10/4/3/10/4</td>
+<td>6,2</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>NT-14</td>
+<td>E</td>
+<td>Elevación de privilegios desde anónimo a juez, mesa o administrador por validación deficiente de JWT, roles en el cliente, IDOR/BOLA o mass assignment.</td>
+<td>API pública, API interna</td>
+<td>9/7/6/10/8</td>
+<td>8,0</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>NT-15</td>
+<td>E</td>
+<td>Compromiso del publicador o del receptor permite escribir en la réplica o usar la DMZ como puente hacia la red interna.</td>
+<td>F12, F13</td>
+<td>10/4/3/10/4</td>
+<td>6,2</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>NT-16</td>
+<td>E</td>
+<td>Cadena de suministro comprometida: dependencia npm/Maven, imagen base o JavaScript de terceros que ejecuta código en el front o en la API.</td>
+<td>CI/CD, front, API</td>
+<td>10/5/4/10/6</td>
+<td>7,0</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>NT-17</td>
+<td>R</td>
+<td>Un juez, la mesa o un operador niega haber registrado, corregido o publicado un resultado, sin evidencia suficiente para acreditarlo.</td>
+<td>F6, F7, F12, F14</td>
+<td>7/7/5/6/4</td>
+<td>5,8</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>NT-18</td>
+<td>E</td>
+<td>Consola de administración expuesta a Internet, sujeta a fuerza bruta, credential stuffing o explotación de vulnerabilidades.</td>
+<td>EP-07</td>
+<td>10/6/5/10/7</td>
+<td>7,6</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>NT-19</td>
+<td>I</td>
+<td>Fuga de secretos —claves de base de datos, del CDN o de firma— en repositorios, imágenes, front o logs de CI.</td>
+<td>CI/CD, KMS, front</td>
+<td>9/7/6/10/6</td>
+<td>7,6</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>NT-20</td>
+<td>D</td>
+<td>Acoplamiento entre el tablero público y el registro de puntajes: la caída o la carga del tablero afecta la operación del torneo.</td>
+<td>Arquitectura, F4, F8</td>
+<td>10/5/4/10/4</td>
+<td>6,6</td>
+<td>Media</td>
+</tr>
+</tbody>
+</table>
+<h3>4.3 Reevaluación de amenazas heredadas</h3>
+<table><colgroup><col style="width:6.69%"><col style="width:24.27%"><col style="width:10.46%"><col style="width:25.10%"><col style="width:25.10%"><col style="width:8.37%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Amenaza heredada</th>
+<th>DREAD (previo → revisado)</th>
+<th>Efecto del nuevo requerimiento</th>
+<th>Control adicional</th>
+<th>Residual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HR-01</td>
+<td>Un atacante intenta iniciar sesión como un juez.</td>
+<td>8,2 → 8,6</td>
+<td>Aumenta la superficie: ahora hay intentos desde Internet y más valor en el tablero público.</td>
+<td>MFA resistente a phishing, certificado de dispositivo, acceso condicional, bloqueo y monitoreo.</td>
+<td>2,4</td>
+</tr>
+<tr>
+<td>HR-02</td>
+<td>Un atacante o insider modifica un puntaje.</td>
+<td>6,8 → 6,8</td>
+<td>Se mantiene; el tablero público no escribe, pero aumenta el incentivo reputacional.</td>
+<td>RBAC, separación de funciones, doble control, auditoría y revisión.</td>
+<td>2,8</td>
+</tr>
+<tr>
+<td>HR-03</td>
+<td>Un juez no reconoce el puntaje como suyo.</td>
+<td>6,8 → 6,8</td>
+<td>Se mantiene; la publicación hace más visible el resultado y el reclamo.</td>
+<td>Firma de dispositivo, identidad, sello de tiempo y auditoría WORM.</td>
+<td>2,4</td>
+</tr>
+<tr>
+<td>HR-04</td>
+<td>Un atacante visualiza un token JWT.</td>
+<td>8,6 → 8,6</td>
+<td>Se mantiene o aumenta por el uso de tablets y la exposición del ecosistema.</td>
+<td>Tokens cortos, refresh rotation, mTLS, pinning, no logs y revocación.</td>
+<td>2,8</td>
+</tr>
+<tr>
+<td>HR-05</td>
+<td>Un atacante envía miles de pedidos al servicio REST.</td>
+<td>6,0 → 5,2</td>
+<td>Disminuye para la API interna porque no está expuesta a Internet; el DDoS se absorbe en el borde.</td>
+<td>Rate limiting, WAF, cuotas y monitoreo.</td>
+<td>3,2</td>
+</tr>
+<tr>
+<td>HR-06</td>
+<td>El administrador o la mesa de control ingresan un puntaje.</td>
+<td>6,2 → 6,2</td>
+<td>Se mantiene; la publicación agrega presión sobre la trazabilidad.</td>
+<td>RBAC/ABAC, separación de funciones, auditoría y revisión de permisos.</td>
+<td>2,6</td>
+</tr>
+</tbody>
+</table>
+<h3>4.4 Ranking de amenazas</h3>
+<table><colgroup><col style="width:10.69%"><col style="width:12.21%"><col style="width:40.46%"><col style="width:10.69%"><col style="width:10.69%"><col style="width:15.27%"></colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>ID</th>
+<th>Amenaza</th>
+<th>DREAD</th>
+<th>Prioridad</th>
+<th>Tratamiento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>NT-08</td>
+<td>Exposición de datos personales en el tablero público.</td>
+<td>8,6</td>
+<td>Crítica</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>2</td>
+<td>NT-11</td>
+<td>DDoS o HTTP flood contra el tablero.</td>
+<td>8,6</td>
+<td>Crítica</td>
+<td>Mitigar / transferir</td>
+</tr>
+<tr>
+<td>3</td>
+<td>HR-01</td>
+<td>Suplantación de juez.</td>
+<td>8,6</td>
+<td>Crítica</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>4</td>
+<td>HR-04</td>
+<td>Visualización de token JWT.</td>
+<td>8,6</td>
+<td>Crítica</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>5</td>
+<td>NT-01</td>
+<td>Alteración de puntajes desde la superficie pública.</td>
+<td>8,4</td>
+<td>Crítica</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>6</td>
+<td>NT-09</td>
+<td>Divulgación de información interna.</td>
+<td>8,0</td>
+<td>Crítica</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>7</td>
+<td>NT-14</td>
+<td>Elevación de privilegios.</td>
+<td>8,0</td>
+<td>Crítica</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>8</td>
+<td>NT-12</td>
+<td>Agotamiento por consultas costosas.</td>
+<td>7,8</td>
+<td>Alta</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>9</td>
+<td>NT-04</td>
+<td>Publicación de resultados no validados.</td>
+<td>7,6</td>
+<td>Alta</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>10</td>
+<td>NT-06</td>
+<td>Suplantación de juez desde Internet.</td>
+<td>7,6</td>
+<td>Alta</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>11</td>
+<td>NT-10</td>
+<td>Scraping y perfilado.</td>
+<td>7,6</td>
+<td>Alta</td>
+<td>Aceptar / mitigar</td>
+</tr>
+<tr>
+<td>12</td>
+<td>NT-18</td>
+<td>Consola de administración expuesta.</td>
+<td>7,6</td>
+<td>Alta</td>
+<td>Eliminar</td>
+</tr>
+<tr>
+<td>13</td>
+<td>NT-19</td>
+<td>Fuga de secretos.</td>
+<td>7,6</td>
+<td>Alta</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>14</td>
+<td>NT-16</td>
+<td>Cadena de suministro.</td>
+<td>7,0</td>
+<td>Alta</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>15</td>
+<td>NT-02</td>
+<td>Envenenamiento de caché/CDN.</td>
+<td>6,8</td>
+<td>Media</td>
+<td>Mitigar / transferir</td>
+</tr>
+<tr>
+<td>16</td>
+<td>NT-05</td>
+<td>Suplantación del sitio público.</td>
+<td>6,8</td>
+<td>Media</td>
+<td>Mitigar / transferir</td>
+</tr>
+<tr>
+<td>17</td>
+<td>HR-02</td>
+<td>Modificación de puntaje por insider.</td>
+<td>6,8</td>
+<td>Media</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>18</td>
+<td>HR-03</td>
+<td>Repudio de un puntaje.</td>
+<td>6,8</td>
+<td>Media</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>19</td>
+<td>NT-03</td>
+<td>Alteración del snapshot en tránsito.</td>
+<td>6,6</td>
+<td>Media</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>20</td>
+<td>NT-07</td>
+<td>Suplantación del publicador.</td>
+<td>6,6</td>
+<td>Media</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>21</td>
+<td>NT-20</td>
+<td>Acoplamiento del tablero con el scoring.</td>
+<td>6,6</td>
+<td>Media</td>
+<td>Eliminar / mitigar</td>
+</tr>
+<tr>
+<td>22</td>
+<td>NT-13</td>
+<td>Pivote de la DMZ a la red interna.</td>
+<td>6,2</td>
+<td>Media</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>23</td>
+<td>NT-15</td>
+<td>Compromiso del publicador/receptor.</td>
+<td>6,2</td>
+<td>Media</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>24</td>
+<td>HR-06</td>
+<td>Elevación por mesa/admin.</td>
+<td>6,2</td>
+<td>Media</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>25</td>
+<td>NT-17</td>
+<td>Repudio de publicación o corrección.</td>
+<td>5,8</td>
+<td>Media</td>
+<td>Mitigar</td>
+</tr>
+<tr>
+<td>26</td>
+<td>HR-05</td>
+<td>Flood al REST interno.</td>
+<td>5,2</td>
+<td>Baja</td>
+<td>Mitigar</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Lectura del ranking.</strong> Las amenazas críticas no son solo técnicas: la exposición de datos personales y el DDoS tienen tanto peso como la alteración de puntajes. Esto es coherente con el negocio: un torneo justo pero con datos de menores expuestos, o un tablero caído en la final, produce tanto daño reputacional como un resultado manipulado. La arquitectura debe atender las tres dimensiones —integridad, privacidad y disponibilidad— y no solo la preocupación explícita del presidente.</p>
+<hr>
+<h2>5. Paso 3: Determinar contramedidas y mitigaciones</h2>
+<h3>5.1 Estrategia de tratamiento</h3>
+<table><colgroup><col style="width:12.36%"><col style="width:42.70%"><col style="width:44.94%"></colgroup>
+<thead>
+<tr>
+<th>Tratamiento</th>
+<th>Amenazas</th>
+<th>Fundamento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Eliminar</strong></td>
+<td>NT-18, NT-20 (parcial)</td>
+<td>Se elimina la exposición de la consola administrativa y se desacopla el tablero del scoring.</td>
+</tr>
+<tr>
+<td><strong>Mitigar</strong></td>
+<td>NT-01 a NT-09, NT-12 a NT-17, NT-19, HR-01 a HR-04, HR-06</td>
+<td>Controles técnicos y organizativos que reducen probabilidad o impacto.</td>
+</tr>
+<tr>
+<td><strong>Transferir</strong></td>
+<td>NT-02, NT-05, NT-11 (parcial)</td>
+<td>Se comparte el riesgo con el proveedor de CDN/WAF mediante contrato, SLA y seguro; la Federación retiene la responsabilidad reputacional.</td>
+</tr>
+<tr>
+<td><strong>Aceptar</strong></td>
+<td>NT-10, NT-11 (residual)</td>
+<td>Los resultados son públicos por requisito de negocio; el residual de DDoS se acepta con condiciones y plan de continuidad.</td>
+</tr>
+</tbody>
+</table>
+<h3>5.2 Contramedidas por amenaza</h3>
+<table><colgroup><col style="width:9.20%"><col style="width:11.49%"><col style="width:33.33%"><col style="width:34.48%"><col style="width:11.49%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Tratamiento</th>
+<th>Contramedida</th>
+<th>Implementación concreta</th>
+<th>Residual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NT-01</td>
+<td>Mitigar</td>
+<td>API pública sin escritura y base de datos de solo lectura.</td>
+<td>No desplegar rutas de escritura en la API pública; rol <code>SELECT</code> sobre la réplica; esquema separado; WAF; validación de esquema; pruebas de verbos, IDOR y mass assignment.</td>
+<td>2,6</td>
+</tr>
+<tr>
+<td>NT-02</td>
+<td>Mitigar / transferir</td>
+<td>Endurecer caché y proveedor CDN.</td>
+<td>Normalizar claves de caché; ignorar <code>Host</code> y <code>X-Forwarded-*</code> no confiables; origin shield; purgas firmadas; MFA y registro de cambios en el proveedor; TTL corto; hash de contenido.</td>
+<td>3,2</td>
+</tr>
+<tr>
+<td>NT-03</td>
+<td>Mitigar</td>
+<td>Canal firmado y resistente a replay.</td>
+<td>mTLS; JWS con Ed25519; nonce, secuencia y sello de tiempo; ventana de frescura; rechazo de replay; pinning; enlace privado.</td>
+<td>2,2</td>
+</tr>
+<tr>
+<td>NT-04</td>
+<td>Mitigar</td>
+<td>Máquina de estados y publicación solo de oficiales.</td>
+<td>Estados <code>provisional → validado → oficial</code>; la API pública solo consulta oficiales; doble control para correcciones; versionado; rollback y asiento compensatorio.</td>
+<td>2,8</td>
+</tr>
+<tr>
+<td>NT-05</td>
+<td>Mitigar / transferir</td>
+<td>Proteger dominio, DNS y marca.</td>
+<td>DNSSEC, CAA, registrar lock, MFA en registrador, monitoreo de Certificate Transparency, HSTS preload, monitoreo de marca, takedown y <code>security.txt</code>.</td>
+<td>3,8</td>
+</tr>
+<tr>
+<td>NT-06</td>
+<td>Mitigar</td>
+<td>Autenticación fuerte y binding de dispositivo.</td>
+<td>MFA resistente a phishing; certificado de dispositivo/mTLS; acceso condicional por dispositivo, red y geografía; bloqueo; sesión corta; monitoreo de imposible travel.</td>
+<td>2,6</td>
+</tr>
+<tr>
+<td>NT-07</td>
+<td>Mitigar</td>
+<td>Identidad de servicio y verificación criptográfica.</td>
+<td>mTLS con CA interna; identidad de servicio; JWS; allowlist de publicadores; rotación de claves; mínimo privilegio.</td>
+<td>2,2</td>
+</tr>
+<tr>
+<td>NT-08</td>
+<td>Mitigar</td>
+<td>Minimización y privacidad desde el diseño.</td>
+<td>Whitelist de campos; sin documento, nacimiento, contacto, domicilio, salud ni nombres de jueces; seudonimización para menores; DPIA; base legal; retención; derechos de acceso y rectificación.</td>
+<td>3,6</td>
+</tr>
+<tr>
+<td>NT-09</td>
+<td>Mitigar</td>
+<td>Endurecer errores y configuración.</td>
+<td>Errores genéricos; desactivar debug, Actuator y Swagger públicos; sin source maps; cabeceras de seguridad; logs sin secretos; consola admin separada.</td>
+<td>2,4</td>
+</tr>
+<tr>
+<td>NT-10</td>
+<td>Aceptar / mitigar</td>
+<td>Límites de uso y transparencia.</td>
+<td>Rate limiting y bot management; paginación máxima; términos de uso; monitoreo; aceptar que los resultados son públicos; no agregar PII adicional.</td>
+<td>3,8</td>
+</tr>
+<tr>
+<td>NT-11</td>
+<td>Mitigar / transferir</td>
+<td>Borde resiliente y continuidad.</td>
+<td>CDN anycast con anti-DDoS; WAF; rate limiting; autoscaling; caché; fallback estático; runbook; SLA y seguro del proveedor.</td>
+<td>4,2</td>
+</tr>
+<tr>
+<td>NT-12</td>
+<td>Mitigar</td>
+<td>Consultas acotadas y eficientes.</td>
+<td>Máximo de página; paginación por keyset; campos de orden permitidos; índices; timeout; caché; réplica dedicada; cuotas por IP.</td>
+<td>3,0</td>
+</tr>
+<tr>
+<td>NT-13</td>
+<td>Mitigar</td>
+<td>Segmentación estricta.</td>
+<td>Sin ruta DMZ → interna; security groups; egress deny; VPC y cuentas separadas; mínimo privilegio; monitoreo de conexiones.</td>
+<td>1,8</td>
+</tr>
+<tr>
+<td>NT-14</td>
+<td>Mitigar</td>
+<td>Autorización centralizada y validación de tokens.</td>
+<td>Validar firma, <code>alg</code>, <code>iss</code>, <code>aud</code>, <code>exp</code> y <code>nbf</code>; RBAC/ABAC en servidor; control por objeto; denegar por defecto; no confiar en roles del cliente; pruebas de IDOR/BOLA.</td>
+<td>2,4</td>
+</tr>
+<tr>
+<td>NT-15</td>
+<td>Mitigar</td>
+<td>Limitar el valor del publicador/receptor.</td>
+<td>Snapshot mínimo; sin credenciales internas en la DMZ; flujo unidireccional; mTLS; firma; host dedicado; imagen inmutable; sin shell; monitoreo.</td>
+<td>1,8</td>
+</tr>
+<tr>
+<td>NT-16</td>
+<td>Mitigar</td>
+<td>Cadena de suministro verificable.</td>
+<td>Lockfiles; SCA y SBOM; firmas y procedencia (Sigstore); SRI; evitar JavaScript de terceros; registry privado; CSP; revisión de dependencias.</td>
+<td>3,4</td>
+</tr>
+<tr>
+<td>NT-17</td>
+<td>Mitigar</td>
+<td>Auditoría y no repudio.</td>
+<td>Registro WORM con quién, qué, cuándo, dónde y dispositivo; hash chain; firma; NTP; retención; revisión periódica.</td>
+<td>2,2</td>
+</tr>
+<tr>
+<td>NT-18</td>
+<td>Eliminar</td>
+<td>Sacar la administración de Internet.</td>
+<td>VPN + PAM + MFA + lista de IP + acceso just-in-time; sin DNS público; plano de gestión separado; registro de sesiones.</td>
+<td>1,2</td>
+</tr>
+<tr>
+<td>NT-19</td>
+<td>Mitigar</td>
+<td>Gestión de secretos.</td>
+<td>Secrets manager; escaneo de repositorios, imágenes y logs; rotación; credenciales efímeras; KMS; mínimo privilegio; auditoría.</td>
+<td>2,4</td>
+</tr>
+<tr>
+<td>NT-20</td>
+<td>Eliminar / mitigar</td>
+<td>Desacoplar el tablero del scoring.</td>
+<td>Infraestructura separada; réplica; bulkhead; cuotas; circuit breaker; despliegue independiente; prueba de caos.</td>
+<td>1,8</td>
+</tr>
+<tr>
+<td>HR-01</td>
+<td>Mitigar</td>
+<td>Autenticación reforzada de jueces.</td>
+<td>MFA + certificado de dispositivo + acceso condicional + bloqueo + monitoreo.</td>
+<td>2,4</td>
+</tr>
+<tr>
+<td>HR-02</td>
+<td>Mitigar</td>
+<td>Separación de funciones.</td>
+<td>RBAC + doble control + auditoría + revisión de cambios.</td>
+<td>2,8</td>
+</tr>
+<tr>
+<td>HR-03</td>
+<td>Mitigar</td>
+<td>No repudio del puntaje.</td>
+<td>Firma de dispositivo + identidad + sello de tiempo + auditoría.</td>
+<td>2,4</td>
+</tr>
+<tr>
+<td>HR-04</td>
+<td>Mitigar</td>
+<td>Protección de sesión.</td>
+<td>Tokens cortos + refresh rotation + mTLS + pinning + no logs + revocación.</td>
+<td>2,8</td>
+</tr>
+<tr>
+<td>HR-05</td>
+<td>Mitigar</td>
+<td>Límites y borde.</td>
+<td>API interna no expuesta + rate limiting + WAF + cuotas + monitoreo.</td>
+<td>3,2</td>
+</tr>
+<tr>
+<td>HR-06</td>
+<td>Mitigar</td>
+<td>Autorización granular.</td>
+<td>RBAC/ABAC + separación de funciones + auditoría + revisión de permisos.</td>
+<td>2,6</td>
+</tr>
+</tbody>
+</table>
+<h3>5.3 Controles transversales</h3>
+<table><colgroup><col style="width:10.53%"><col style="width:39.47%"><col style="width:17.11%"><col style="width:16.45%"><col style="width:16.45%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Control</th>
+<th>Amenazas que mitiga</th>
+<th>Capa</th>
+<th>Tipo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C-01</td>
+<td>Aislamiento de planos y segmentación de red.</td>
+<td>NT-01, NT-13, NT-15, NT-20</td>
+<td>Red / arquitectura</td>
+<td>Preventivo</td>
+</tr>
+<tr>
+<td>C-02</td>
+<td>Publicación unidireccional firmada.</td>
+<td>NT-03, NT-07, NT-15</td>
+<td>Integridad / criptografía</td>
+<td>Preventivo / detectivo</td>
+</tr>
+<tr>
+<td>C-03</td>
+<td>Autenticación fuerte y binding de dispositivo.</td>
+<td>NT-06, HR-01, HR-04</td>
+<td>Identidad</td>
+<td>Preventivo</td>
+</tr>
+<tr>
+<td>C-04</td>
+<td>Autorización denegar-por-defecto y por objeto.</td>
+<td>NT-01, NT-14, HR-02, HR-06</td>
+<td>Aplicación</td>
+<td>Preventivo</td>
+</tr>
+<tr>
+<td>C-05</td>
+<td>Integridad y no repudio con auditoría WORM.</td>
+<td>NT-17, HR-03</td>
+<td>Datos / operación</td>
+<td>Detectivo / correctivo</td>
+</tr>
+<tr>
+<td>C-06</td>
+<td>Minimización y privacidad desde el diseño.</td>
+<td>NT-08, NT-10</td>
+<td>Datos / cumplimiento</td>
+<td>Preventivo</td>
+</tr>
+<tr>
+<td>C-07</td>
+<td>Borde seguro: CDN, WAF, TLS, DNSSEC, HSTS.</td>
+<td>NT-02, NT-05, NT-11, NT-12</td>
+<td>Borde</td>
+<td>Preventivo</td>
+</tr>
+<tr>
+<td>C-08</td>
+<td>API pública endurecida: solo <code>GET</code>, esquema, paginación, errores genéricos.</td>
+<td>NT-01, NT-09, NT-12, NT-14</td>
+<td>Aplicación</td>
+<td>Preventivo</td>
+</tr>
+<tr>
+<td>C-09</td>
+<td>Gestión de secretos y cadena de suministro.</td>
+<td>NT-16, NT-19</td>
+<td>CI/CD / infraestructura</td>
+<td>Preventivo</td>
+</tr>
+<tr>
+<td>C-10</td>
+<td>Monitoreo, detección y respuesta.</td>
+<td>NT-04, NT-06, NT-11, NT-17</td>
+<td>Operación</td>
+<td>Detectivo / correctivo</td>
+</tr>
+<tr>
+<td>C-11</td>
+<td>Disponibilidad y desacoplamiento.</td>
+<td>NT-11, NT-20</td>
+<td>Arquitectura</td>
+<td>Preventivo / recuperación</td>
+</tr>
+<tr>
+<td>C-12</td>
+<td>SDLC seguro y validación continua.</td>
+<td>Todas</td>
+<td>Proceso</td>
+<td>Preventivo / detectivo</td>
+</tr>
+</tbody>
+</table>
+<h3>5.4 Privacidad y protección de datos</h3>
+<p>El tablero público aumenta el tratamiento de datos personales y los expone a una audiencia indeterminada. La Ley 18.331 exige finalidad legítima, proporcionalidad, seguridad y transparencia. La publicación de resultados deportivos puede ampararse en el interés legítimo o en el consentimiento, pero <strong>no habilita a publicar cualquier dato</strong>. Los gimnastas pueden ser menores, por lo que se aplica un criterio de minimización reforzado.</p>
+<table><colgroup><col style="width:28.07%"><col style="width:19.30%"><col style="width:52.63%"></colgroup>
+<thead>
+<tr>
+<th>Dato</th>
+<th>¿Se publica?</th>
+<th>Justificación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nombre y apellido</td>
+<td>Sí, con revisión legal</td>
+<td>Identifica al competidor en el resultado deportivo. Para menores, evaluar nombre + inicial o seudónimo.</td>
+</tr>
+<tr>
+<td>Número de competidor</td>
+<td>Sí</td>
+<td>Alternativa o complemento al nombre; reduce exposición.</td>
+</tr>
+<tr>
+<td>Club</td>
+<td>Sí</td>
+<td>Dato deportivo necesario para el resultado por equipos.</td>
+</tr>
+<tr>
+<td>Categoría</td>
+<td>Sí</td>
+<td>Dato deportivo.</td>
+</tr>
+<tr>
+<td>Aparato</td>
+<td>Sí</td>
+<td>Dato deportivo.</td>
+</tr>
+<tr>
+<td>Puntaje</td>
+<td>Sí</td>
+<td>Núcleo del tablero.</td>
+</tr>
+<tr>
+<td>Ranking</td>
+<td>Sí</td>
+<td>Núcleo del tablero.</td>
+</tr>
+<tr>
+<td>Torneo y fecha</td>
+<td>Sí</td>
+<td>Contexto del resultado.</td>
+</tr>
+<tr>
+<td>Estado oficial / provisional</td>
+<td>Sí</td>
+<td>Transparencia sobre la validez del dato.</td>
+</tr>
+<tr>
+<td>Fecha de nacimiento o edad</td>
+<td>No</td>
+<td>Innecesario; aumenta el riesgo sobre menores.</td>
+</tr>
+<tr>
+<td>Documento de identidad</td>
+<td>No</td>
+<td>Dato identificatorio innecesario.</td>
+</tr>
+<tr>
+<td>Domicilio, teléfono, correo</td>
+<td>No</td>
+<td>Dato de contacto sin relación con el resultado.</td>
+</tr>
+<tr>
+<td>Escuela o institución</td>
+<td>No</td>
+<td>Dato innecesario y potencialmente sensible en menores.</td>
+</tr>
+<tr>
+<td>Datos de salud o lesiones</td>
+<td>No</td>
+<td>Categoría sensible; fuera de finalidad.</td>
+</tr>
+<tr>
+<td>Nombre de jueces</td>
+<td>No</td>
+<td>No aporta al resultado y expone a los evaluadores.</td>
+</tr>
+<tr>
+<td>Identificadores internos de base</td>
+<td>No</td>
+<td>Facilita enumeración y ataques.</td>
+</tr>
+<tr>
+<td>Registros de auditoría</td>
+<td>No</td>
+<td>Uso interno y restringido.</td>
+</tr>
+<tr>
+<td>Fotografías o video</td>
+<td>Fuera de alcance</td>
+<td>Requiere consentimiento específico y evaluación aparte.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Medidas de privacidad</strong></p>
+<ul>
+<li>Evaluación de impacto en privacidad (DPIA) antes de la salida a producción.</li>
+<li>Base legal documentada y aviso de privacidad accesible desde el tablero. Cuando la base legal sea el consentimiento y el gimnasta sea menor de edad, se recabará el consentimiento de sus tutores; en todos los casos se evaluará la publicación seudonimizada del menor.</li>
+<li>Política de retención: resultados históricos según reglamento deportivo; datos de auditoría según obligación legal; datos de contacto fuera del tablero.</li>
+<li>Procedimiento para ejercer derechos de acceso, rectificación, actualización y supresión, con canal y plazo.</li>
+<li>Acuerdos de tratamiento con el proveedor de CDN y el IdP; transferencias internacionales evaluadas.</li>
+<li>Revisión de la publicación de menores con el responsable de privacidad y, si corresponde, con las familias.</li>
+<li>Registro de actividades de tratamiento y designación de responsable.</li>
+</ul>
+<h3>5.5 Riesgos residuales y aceptación</h3>
+<table><colgroup><col style="width:9.94%"><col style="width:19.25%"><col style="width:12.42%"><col style="width:8.70%"><col style="width:12.42%"><col style="width:37.27%"></colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Amenaza</th>
+<th>Residual</th>
+<th>Nivel</th>
+<th>Decisión</th>
+<th>Condiciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NT-11</td>
+<td>DDoS contra el tablero.</td>
+<td>4,2</td>
+<td>Medio</td>
+<td>Aceptar / transferir</td>
+<td>SLA del proveedor, runbook, caché, fallback estático, seguro y revisión posterior al evento.</td>
+</tr>
+<tr>
+<td>NT-10</td>
+<td>Scraping y perfilado.</td>
+<td>3,8</td>
+<td>Bajo</td>
+<td>Aceptar / mitigar</td>
+<td>Rate limiting, bot management, términos de uso y monitoreo; los datos son públicos por diseño.</td>
+</tr>
+<tr>
+<td>NT-05</td>
+<td>Suplantación del sitio público.</td>
+<td>3,8</td>
+<td>Bajo</td>
+<td>Aceptar / mitigar</td>
+<td>Monitoreo de dominio y marca, DNSSEC, HSTS preload y takedown.</td>
+</tr>
+<tr>
+<td>NT-08</td>
+<td>Exposición de datos personales.</td>
+<td>3,6</td>
+<td>Bajo</td>
+<td>Mitigar</td>
+<td>DPIA aprobada y whitelist de campos verificada antes de publicar.</td>
+</tr>
+<tr>
+<td>Resto</td>
+<td>—</td>
+<td>≤ 3,8</td>
+<td>Bajo</td>
+<td>Mitigar</td>
+<td>Verificación en la salida a producción.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Condición de salida a producción:</strong> no podrá publicarse el tablero si alguna amenaza conserva un residual mayor o igual a 6,0 (alto), si una amenaza crítica conserva un residual medio (4,0 a 5,9) sin aceptación formal firmada por el dueño del negocio y el responsable de seguridad, si la DPIA no está aprobada o si no se ejecutaron las pruebas de segmentación, autorización y restauración. La aceptación de <strong>NT-11</strong> con residual <strong>4,2</strong> cumple esta condición porque está firmada, tiene condiciones y fecha de revisión.</p>
+<hr>
+<h2>6. Paso 4: Evaluar el análisis y próximos pasos</h2>
+<h3>6.1 Evaluación de las cuatro preguntas</h3>
+<table><colgroup><col style="width:41.18%"><col style="width:58.82%"></colgroup>
+<thead>
+<tr>
+<th>Pregunta del Threat Modeling Manifesto</th>
+<th>Respuesta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>¿Qué estamos haciendo?</td>
+<td>Publicar resultados oficiales de torneos en un tablero de Internet, en vivo y con históricos, sin exponer el plano de escritura.</td>
+</tr>
+<tr>
+<td>¿Qué puede salir mal?</td>
+<td>Alteración de puntajes, suplantación de jueces, exposición de datos de menores, DDoS, divulgación de información, elevación de privilegios y fallas de disponibilidad.</td>
+</tr>
+<tr>
+<td>¿Qué vamos a hacer al respecto?</td>
+<td>Aislar planos, publicar snapshots firmados, autenticar fuerte, autorizar en servidor, minimizar datos, auditar, proteger el borde y desacoplar la disponibilidad.</td>
+</tr>
+<tr>
+<td>¿Hicimos un trabajo suficientemente bueno?</td>
+<td>Se cubrieron los componentes y flujos del DFD; el único residual medio (NT-11) queda aceptado formalmente con condiciones y dos residuales bajos (NT-05 y NT-10) quedan monitoreados. Persisten temas abiertos para la próxima iteración.</td>
+</tr>
+</tbody>
+</table>
+<h3>6.2 Plan de validación</h3>
+<table><colgroup><col style="width:18.44%"><col style="width:22.35%"><col style="width:33.52%"><col style="width:13.41%"><col style="width:12.29%"></colgroup>
+<thead>
+<tr>
+<th>Actividad</th>
+<th>Alcance</th>
+<th>Criterio de aceptación</th>
+<th>Responsable</th>
+<th>Momento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Revisión del modelo de amenazas</td>
+<td>Arquitectura y DFD.</td>
+<td>Todos los elementos y flujos tienen al menos una amenaza evaluada.</td>
+<td>Seguridad / arquitectura</td>
+<td>Antes de construir</td>
+</tr>
+<tr>
+<td>Revisión de arquitectura segura</td>
+<td>Segmentación, identidades, flujos.</td>
+<td>No hay ruta DMZ → interna; publicación unidireccional verificada.</td>
+<td>Arquitectura / redes</td>
+<td>Antes de construir</td>
+</tr>
+<tr>
+<td>Prueba de penetración externa</td>
+<td>Sitio, API pública, CDN.</td>
+<td>Sin hallazgos críticos o altos sin mitigar.</td>
+<td>Tercero independiente</td>
+<td>Preproducción</td>
+</tr>
+<tr>
+<td>Prueba de penetración autenticada</td>
+<td>API interna, app de jueces, mesa, admin.</td>
+<td>Sin IDOR/BOLA, elevación ni bypass de MFA.</td>
+<td>Tercero independiente</td>
+<td>Preproducción</td>
+</tr>
+<tr>
+<td>SAST / DAST / SCA</td>
+<td>Código y dependencias.</td>
+<td>Sin vulnerabilidades críticas; SBOM generado.</td>
+<td>Desarrollo / DevSecOps</td>
+<td>Cada build</td>
+</tr>
+<tr>
+<td>Prueba de carga y DDoS</td>
+<td>Tablero público.</td>
+<td>Cumple latencia y disponibilidad bajo carga; rate limiting efectivo.</td>
+<td>SRE / proveedor</td>
+<td>Preproducción y ensayo</td>
+</tr>
+<tr>
+<td>Prueba de caos</td>
+<td>Caída de Internet, CDN y tablero.</td>
+<td>El registro de puntajes continúa; el tablero muestra último snapshot.</td>
+<td>SRE / negocio</td>
+<td>Ensayo general</td>
+</tr>
+<tr>
+<td>Restauración de backups</td>
+<td>Base primaria y réplica.</td>
+<td>RPO/RTO definidos y cumplidos.</td>
+<td>Infraestructura</td>
+<td>Trimestral</td>
+</tr>
+<tr>
+<td>DPIA</td>
+<td>Datos publicados y base legal.</td>
+<td>Aprobada por privacidad.</td>
+<td>Privacidad / legal</td>
+<td>Antes de producción</td>
+</tr>
+<tr>
+<td>Simulacro de incidente</td>
+<td>Suplantación, fuga, DDoS.</td>
+<td>Runbook probado y contactos actualizados.</td>
+<td>Seguridad / negocio</td>
+<td>Antes de producción</td>
+</tr>
+</tbody>
+</table>
+<h3>6.3 Temas abiertos para la próxima iteración</h3>
+<ul>
+<li>Publicación de resultados provisionales en tiempo real y su impacto en la percepción de oficialidad.</li>
+<li>API para terceros (medios, federaciones, aplicaciones móviles) y esquema de claves/atribución.</li>
+<li>Integración con apuestas deportivas, que queda expresamente fuera de alcance y requeriría un análisis regulatorio específico.</li>
+<li>Histórico de datos anterior al sistema y su migración con minimización.</li>
+<li>Publicación de fotografías, video o transmisión en vivo.</li>
+<li>Requisitos de accesibilidad del tablero y su relación con la disponibilidad.</li>
+<li>Cambios normativos en protección de datos y en el reglamento deportivo.</li>
+<li>Evaluación de un esquema de transparencia verificable (por ejemplo, registro de hashes públicos) para audiencias externas.</li>
+</ul>
+<h3>6.4 Métricas de seguimiento</h3>
+<table><colgroup><col style="width:51.02%"><col style="width:48.98%"></colgroup>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cobertura de amenazas por elemento del DFD</td>
+<td>100 % de elementos y flujos evaluados.</td>
+</tr>
+<tr>
+<td>Amenazas críticas con residual menor a 4,0</td>
+<td>100 % antes de producción.</td>
+</tr>
+<tr>
+<td>Latencia de publicación de resultados oficiales</td>
+<td>Menor a 60 segundos en el percentil 95.</td>
+</tr>
+<tr>
+<td>Disponibilidad del tablero durante el evento</td>
+<td>Mayor o igual a 99,9 %.</td>
+</tr>
+<tr>
+<td>Disponibilidad del registro de puntajes</td>
+<td>Independiente del tablero; sin pérdida de datos.</td>
+</tr>
+<tr>
+<td>Tiempo de detección de cambios anómalos de puntaje</td>
+<td>Menor a 5 minutos.</td>
+</tr>
+<tr>
+<td>Cobertura de auditoría de escrituras</td>
+<td>100 % de las operaciones.</td>
+</tr>
+<tr>
+<td>Hallazgos críticos abiertos en producción</td>
+<td>Cero.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>7. Conclusiones</h2>
+<p>El tablero público no es una simple pantalla de consulta: es un nuevo producto de datos que expone el sistema a Internet y convierte los resultados en información pública. La respuesta de diseño correcta no consiste en agregar un login al tablero ni en confiar en que nadie intentará modificarlo, sino en <strong>separar el plano de escritura del plano de publicación</strong> y en hacer que el camino desde Internet hacia los puntajes sea inexistente por arquitectura.</p>
+<p>La propuesta presentada cumple el nuevo requerimiento de negocio —resultados en vivo e históricos para cualquier persona— y responde a la preocupación del presidente: la API pública no escribe, la base pública es una réplica minimizada y de solo lectura, y la DMZ no tiene ruta hacia la red interna. La integridad se refuerza con autenticación fuerte, binding de dispositivo, autorización en servidor, auditoría inmutable y snapshots firmados. La privacidad se protege con minimización, whitelist de campos, DPIA y cumplimiento de la Ley 18.331. La disponibilidad se sostiene con CDN/WAF, caché, fallback y desacoplamiento del scoring.</p>
+<p>El modelo identificó 20 amenazas nuevas y reevaluó 6 heredadas. Las amenazas críticas tienen controles definidos y residuales bajos; el único residual medio (NT-11) se acepta formalmente con condiciones, responsable y revisión, y los residuales bajos quedan monitoreados. El resultado es un diseño que puede implementarse, verificarse y volver a modelarse en la próxima iteración, tal como exige un proceso de threat modeling continuo.</p>
+<hr>
+<h2>Anexo A. Glosario</h2>
+<table><colgroup><col style="width:18.92%"><col style="width:81.08%"></colgroup>
+<thead>
+<tr>
+<th>Término</th>
+<th>Definición</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DFD</td>
+<td>Diagrama de flujo de datos: representa procesos, almacenes, entidades externas y flujos.</td>
+</tr>
+<tr>
+<td>STRIDE</td>
+<td>Categorías de amenazas: Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege.</td>
+</tr>
+<tr>
+<td>DREAD</td>
+<td>Daño, Reproducibilidad, Explotabilidad, Usuarios afectados, Detectabilidad; promedio para priorizar.</td>
+</tr>
+<tr>
+<td>DMZ</td>
+<td>Zona desmilitarizada; subred expuesta a Internet, separada de la red interna.</td>
+</tr>
+<tr>
+<td>WAF</td>
+<td>Web Application Firewall; filtra tráfico HTTP malicioso.</td>
+</tr>
+<tr>
+<td>mTLS</td>
+<td>TLS mutuo; cliente y servidor presentan certificados.</td>
+</tr>
+<tr>
+<td>JWT</td>
+<td>JSON Web Token; credencial firmada con claims.</td>
+</tr>
+<tr>
+<td>JWS</td>
+<td>JSON Web Signature; firma de un payload para verificar integridad y origen.</td>
+</tr>
+<tr>
+<td>OIDC</td>
+<td>OpenID Connect; capa de identidad sobre OAuth 2.0.</td>
+</tr>
+<tr>
+<td>RBAC / ABAC</td>
+<td>Control de acceso por roles / por atributos.</td>
+</tr>
+<tr>
+<td>IDOR / BOLA</td>
+<td>Referencia directa insegura a objetos / autorización a nivel de objeto rota.</td>
+</tr>
+<tr>
+<td>WORM</td>
+<td>Write Once, Read Many; almacenamiento inmutable.</td>
+</tr>
+<tr>
+<td>CDC / outbox</td>
+<td>Captura de cambios / patrón de publicación confiable de eventos.</td>
+</tr>
+<tr>
+<td>RPO / RTO</td>
+<td>Punto objetivo de recuperación / tiempo objetivo de recuperación.</td>
+</tr>
+<tr>
+<td>DPIA</td>
+<td>Evaluación de impacto en privacidad.</td>
+</tr>
+<tr>
+<td>URCDP</td>
+<td>Unidad Reguladora y de Control de Datos Personales (Uruguay).</td>
+</tr>
+<tr>
+<td>PAM</td>
+<td>Privileged Access Management; gestión de accesos privilegiados.</td>
+</tr>
+<tr>
+<td>MDM</td>
+<td>Mobile Device Management; gestión de dispositivos móviles.</td>
+</tr>
+</tbody>
+</table>
+<h2>Anexo B. Referencias</h2>
+<ul>
+<li>OWASP Foundation. <em>Threat Modeling Process</em>. https://owasp.org/www-community/Threat_Modeling_Process</li>
+<li>OWASP Foundation. <em>Threat Dragon</em>. https://owasp.org/www-project-threat-dragon/</li>
+<li>OWASP Foundation. <em>OWASP Top 10 2021</em>. https://owasp.org/Top10/</li>
+<li>OWASP Foundation. <em>Application Security Verification Standard (ASVS)</em>. https://owasp.org/www-project-application-security-verification-standard/</li>
+<li>Microsoft. <em>Threat Modeling Fundamentals</em>. https://learn.microsoft.com/en-us/training/paths/tm-threat-modeling-fundamentals/</li>
+<li>Threat Modeling Manifesto. https://www.threatmodelingmanifesto.org/</li>
+<li>FIRST. <em>CVSS v4.0 Specification</em>. https://www.first.org/cvss/v4-0/specification-document</li>
+<li>NIST. <em>SP 800-207: Zero Trust Architecture</em>.</li>
+<li>Uruguay. <em>Ley N.º 18.331 de Protección de Datos Personales</em> y Decreto N.º 414/009.</li>
+<li>Kohnfelder, L. y Garg, P. <em>The Threats to Our Products</em>. Microsoft, 1999.</li>
+</ul>
+<div class="page-break"></div><h2>Anexo C. Mapeo con OWASP Top 10 2021</h2>
+<table><colgroup><col style="width:35.34%"><col style="width:19.55%"><col style="width:45.11%"></colgroup>
+<thead>
+<tr>
+<th>Categoría OWASP</th>
+<th>Amenazas relacionadas</th>
+<th>Controles principales</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A01: Broken Access Control</td>
+<td>NT-01, NT-14, HR-02, HR-06</td>
+<td>C-04, C-08, RBAC/ABAC, control por objeto, pruebas de IDOR/BOLA.</td>
+</tr>
+<tr>
+<td>A02: Cryptographic Failures</td>
+<td>NT-03, NT-07, HR-04</td>
+<td>C-02, mTLS, JWS, TLS 1.3, gestión de claves.</td>
+</tr>
+<tr>
+<td>A03: Injection</td>
+<td>NT-01, NT-12</td>
+<td>Validación de esquema, parametrización, WAF, límites de consulta.</td>
+</tr>
+<tr>
+<td>A04: Insecure Design</td>
+<td>NT-04, NT-08, NT-13, NT-20</td>
+<td>C-01, C-06, C-11, threat modeling, DPIA.</td>
+</tr>
+<tr>
+<td>A05: Security Misconfiguration</td>
+<td>NT-09, NT-18</td>
+<td>C-08, hardening, errores genéricos, admin separado.</td>
+</tr>
+<tr>
+<td>A06: Vulnerable and Outdated Components</td>
+<td>NT-16</td>
+<td>C-09, SCA, SBOM, lockfiles, firmas.</td>
+</tr>
+<tr>
+<td>A07: Identification and Authentication Failures</td>
+<td>NT-06, HR-01, HR-04</td>
+<td>C-03, MFA, OIDC, device binding, sesión corta.</td>
+</tr>
+<tr>
+<td>A08: Software and Data Integrity Failures</td>
+<td>NT-02, NT-03, NT-04, NT-16</td>
+<td>C-02, firmas, SRI, procedencia, auditoría.</td>
+</tr>
+<tr>
+<td>A09: Security Logging and Monitoring Failures</td>
+<td>NT-17</td>
+<td>C-05, C-10, SIEM, WORM, alertas.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</body>
+</html>
