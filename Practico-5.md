@@ -63,7 +63,7 @@ Sobre el riesgo residual, consideramos aceptable un valor menor o igual a 3,9 (b
 
 ## 2. Entregable I — Arquitectura propuesta
 ### 2.1 Vista de arquitectura
-<!-- FIGURA 1: espacio reservado para el diagrama de arquitectura -->
+![Arquitectura propuesta](diagramas/arquitectura-fixed.png)
 **Figura 1.** Arquitectura propuesta. El plano de escritura permanece en la red interna y el plano de lectura pública se despliega en una DMZ sin ruta hacia la red interna. La publicación es un flujo unidireccional de snapshots firmados.
 
 La arquitectura mantiene el tablero público como un producto de datos derivado y no como una vista directa de la base de competición. Esto es lo que responde estructuralmente a la preocupación del presidente: desde Internet no existe una ruta de escritura hacia los puntajes, ni siquiera si un atacante compromete el sitio público.
@@ -129,13 +129,13 @@ Aplicamos el proceso de cuatro pasos que vimos en el teórico. El primero es det
 
 Este documento es la segunda iteración del modelo. La primera cubrió el sistema de gestión de torneos con tablets para jueces, y esta incorpora el tablero público en Internet y revisa las amenazas heredadas con la nueva exposición.
 ### 3.2 DFD nivel 1
-<!-- FIGURA 2: espacio reservado para el DFD nivel 1 -->
+![DFD nivel 1](diagramas/dfd1.png)
 **Figura 2.** DFD nivel 1. Se incorporan los procesos de publicación y consulta pública, y la réplica pública como almacén separado de la base de competición.
 ### 3.3 DFD nivel 2: registro y validación de puntajes
 <!-- FIGURA 3: espacio reservado para el DFD nivel 2 de registro -->
 **Figura 3.** DFD nivel 2 del plano de escritura. La autenticación, el registro y la oficialización ocurren en la red interna, y la mesa de control valida antes de que un resultado pueda publicarse.
 ### 3.4 DFD nivel 2: publicación y consulta
-<!-- FIGURA 4: espacio reservado para el DFD nivel 2 de publicación -->
+![DFD nivel 2: flujos nuevos](diagramas/dfd2.png)
 **Figura 4.** DFD nivel 2 del plano de lectura. El publicador envía un snapshot firmado a la DMZ y la consulta pública solo lee la réplica y la caché.
 
 Los flujos nuevos son seis: F1 Usuario Internet hacia CDN, F2 CDN hacia Sitio público, F3 CDN/front hacia API pública, F4 API pública hacia réplica/caché, F12 Publicador hacia receptor DMZ y F13 Receptor hacia réplica pública. Los flujos F5 a F11 y F14 a F17 corresponden al plano interno y se mantienen de la iteración anterior.
