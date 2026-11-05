@@ -2,13 +2,13 @@
 
 ## Modelado de amenazas del tablero público de puntajes
 **Curso:** Desarrollo de Software Seguro  
-**Autora:** Lucía Iriarte y Ramiro Lopéz  
+**Autores:** Lucía Iriarte y Ramiro Lopéz  
 **Fecha:** Octubre de 2026  
 
 ## Resumen
 Con esta iteración la Federación suma un tablero público en Internet donde cualquiera puede ver los resultados en vivo y consultar torneos anteriores. A primera vista parece una función de lectura, pero en realidad cambia bastante la superficie de exposición. Por primera vez la aplicación queda accesible desde una red que no controlamos y los resultados de una competencia pasan a ser información pública.
 
-El presidente de la Federación planteó su preocupación de que alguien desde Internet pueda modificar una nota. Nosotros lo abordamos desde la arquitectura y no solo con controles de aplicación. La propuesta separa el lano de escritura, donde se registran, validan y oficializan los puntajes, del plano de publicación, que es la consulta pública. El tablero se alimenta de una réplica de solo lectura mediante un flujo unidireccional de snapshots firmados. La DMZ pública no tiene ruta hacia la red interna, la API pública no implementa operaciones de escritura y el usuario de base de datos asociado solo puede ejecutar "SELECT". Aun si un atacante comprometiera el sitio o la API pública, no tendría un camino directo hacia la base de competición.
+El presidente de la Federación planteó su preocupación de que alguien desde Internet pueda modificar una nota. Nosotros lo abordamos desde la arquitectura y no solo con controles de aplicación. La propuesta separa el plano de escritura, donde se registran, validan y oficializan los puntajes, del plano de publicación, que es la consulta pública. El tablero se alimenta de una réplica de solo lectura mediante un flujo unidireccional de snapshots firmados. La DMZ pública no tiene ruta hacia la red interna, la API pública no implementa operaciones de escritura y el usuario de base de datos asociado solo puede ejecutar "SELECT". Aun si un atacante comprometiera el sitio o la API pública, no tendría un camino directo hacia la base de competición.
 
 Para armar el modelo aplicamos el proceso OWASP que vimos en el teórico. Primero determinamos el alcance, después identificamos las amenazas con STRIDE, definimos las contramedidas y por último evaluamos el resultado. Identificamos 20 amenazas nuevas por el tablero público y reevaluamos 6 que venían de la iteración anterior. Los puntajes DREAD más altos son la exposición de datos personales en el tablero (8,6), la denegación de servicio durante el evento (8,6), la alteración de puntajes desde Internet (8,4) y la divulgación de información y elevación de privilegios (8,0). Todas quedan con riesgo residual bajo, salvo NT-11 (DDoS), que queda en 4,2 (medio) y se acepta formalmente con condiciones, responsable y revisión después del evento.
 
