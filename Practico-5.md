@@ -132,10 +132,10 @@ Este documento es la segunda iteración del modelo. La primera cubrió el sistem
 ![DFD nivel 1](diagramas/dfd1.png)
 **Figura 2.** DFD nivel 1. Se incorporan los procesos de publicación y consulta pública, y la réplica pública como almacén separado de la base de competición.
 ### 3.3 DFD nivel 2: registro y validación de puntajes
-<!-- FIGURA 3: espacio reservado para el DFD nivel 2 de registro -->
+![DFD nivel 2: registro y validación](diagramas/dfd-nivel-2-registro.png)
 **Figura 3.** DFD nivel 2 del plano de escritura. La autenticación, el registro y la oficialización ocurren en la red interna, y la mesa de control valida antes de que un resultado pueda publicarse.
 ### 3.4 DFD nivel 2: publicación y consulta
-![DFD nivel 2: flujos nuevos](diagramas/dfd2.png)
+![DFD nivel 2: publicación y consulta](diagramas/dfd-nivel-2-publicacion.png)
 **Figura 4.** DFD nivel 2 del plano de lectura. El publicador envía un snapshot firmado a la DMZ y la consulta pública solo lee la réplica y la caché.
 
 Los flujos nuevos son seis: F1 Usuario Internet hacia CDN, F2 CDN hacia Sitio público, F3 CDN/front hacia API pública, F4 API pública hacia réplica/caché, F12 Publicador hacia receptor DMZ y F13 Receptor hacia réplica pública. Los flujos F5 a F11 y F14 a F17 corresponden al plano interno y se mantienen de la iteración anterior.
@@ -185,7 +185,7 @@ Para cada elemento y flujo del DFD aplicamos las seis categorías STRIDE: S Spoo
 | Tratamiento | Amenazas | Fundamento |
 |---|---|---|
 | **Eliminar** | NT-18, NT-20 (parcial) | Se elimina la exposición de la consola administrativa y se desacopla el tablero del scoring. |
-| **Mitigar** | NT-01 a NT-09, NT-12 a NT-17, NT-19, HR-01 a HR-04, HR-06 | Controles técnicos y organizativos que reducen la probabilidad o el impacto. |
+| **Mitigar** | NT-01 a NT-09, NT-12 a NT-17, NT-19, HR-01 a HR-06 | Controles técnicos y organizativos que reducen la probabilidad o el impacto. |
 | **Transferir** | NT-02, NT-05, NT-11 (parcial) | Se comparte el riesgo con el proveedor de CDN/WAF mediante contrato, SLA y seguro. La Federación retiene la responsabilidad reputacional. |
 | **Aceptar** | NT-10, NT-11 (residual) | Los resultados son públicos por requisito de negocio. El residual de DDoS se acepta con condiciones y plan de continuidad. |
 ### 5.2 Contramedidas por amenaza
