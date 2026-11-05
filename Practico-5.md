@@ -111,8 +111,10 @@ Los puntos de entrada 1, 2 y 3 de la iteración 1 no cambian y siguen limitados 
 ### 2.6 Diagramas de flujo de datos
 
 **DFD nivel 1:** El sistema ahora tiene un actor externo adicional (Público) que interactúa solo con la capa pública, separada del core por una frontera de confianza.
+![DFD nivel 1](diagramas/dfd1.png)
 
-**DFD nivel 2 – flujos nuevos** (los flujos 1 a 11 de la iteración 1 se mantienen):
+**DFD nivel 2 – flujos nuevos** (los flujos 1 a 11 de la iteración 1 se mantienen)
+![DFD nivel 2](diagramas/dfd2.png)
 
 | Flujo | Origen → Destino | Datos | Frontera cruzada |
 | :---: | :--- | :--- | :--- |
