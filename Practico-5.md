@@ -38,7 +38,7 @@ Los requisitos normativos y de negocio son tres. El primero es la Ley N.º 18.33
 2. La Federación es la propietaria de las tablets de los jueces y aplica gestión de dispositivos (MDM). La red WiFi de la arena la controla la Federación y existe un SSID exclusivo para la aplicación, en una VLAN propia, al que el público no tiene acceso. Los jueces, la mesa de control y los administradores se autentican, mientras que el público no.
 3. La Federación va a contratar un proveedor de CDN, WAF y protección anti-DDoS, y va a utilizar un proveedor de identidad (IdP). La base de competición no se expone directamente a Internet en ningún escenario.
 4. Las correcciones de puntajes se hacen mediante una nueva versión o un asiento compensatorio, nunca eliminando el registro original en silencio. La publicación de resultados históricos se limita a datos deportivos y no incluye información de contacto, documentos ni datos de salud.
-5. Quedan fuera de alcance el reglamento deportivo y el algoritmo de puntuación, la seguridad física de la arena más allá de la red WiFi, las aplicaciones de terceros que consuman los resultados, las apuestas deportivas y el tratamiento de imágenes o videos de gimnastas.
+5. Quedan fuera de alcance el reglamento deportivo y el algoritmo de puntuación, la seguridad física del lugar más allá de la red WiFi, las aplicaciones de terceros que consuman los resultados, las apuestas deportivas y el tratamiento de imágenes o videos de gimnastas.
 ### 1.4 Activos a proteger
 - **A-01** Puntajes oficiales y su historial de versiones (integridad crítica).
 - **A-02** Identidades y credenciales de jueces, mesa y administradores (confidencial).
@@ -71,12 +71,12 @@ Usamos DREAD para priorizar. El puntaje se calcula como el promedio de Daño (D)
 
 DREAD es una herramienta de priorización y no una medida absoluta de probabilidad, así que lo complementamos con el contexto del negocio, el valor del activo y los controles compensatorios que ya existen.
 
-## 2. Entregable I — Arquitectura propuesta
+## 2. Entregable 1:  Arquitectura propuesta
 ### 2.1 Vista de arquitectura
 ![Arquitectura propuesta](diagramas/arquitectura-fixed.png)
 **Figura 1.** Arquitectura propuesta. El plano de escritura permanece en la red interna y el plano de lectura pública se despliega en una DMZ sin ruta hacia la red interna. La publicación es un flujo unidireccional de snapshots firmados.
 
-La arquitectura mantiene el tablero público como un producto de datos derivado y no como una vista directa de la base de competición. Esto es lo que responde estructuralmente a la preocupación del presidente: desde Internet no existe una ruta de escritura hacia los puntajes, ni siquiera si un atacante compromete el sitio público.
+La arquitectura mantiene el tablero público como un producto de datos derivado y no como una vista directa de la base de competición. Esto es lo que responde estructuralmente a la preocupación del dueño: desde Internet no existe una ruta de escritura hacia los puntajes, ni siquiera si un atacante compromete el sitio público.
 ### 2.2 Componentes y responsabilidades
 
 | Componente | Zona | Responsabilidad | Controles principales |
@@ -146,7 +146,7 @@ Los niveles de confianza son: N0 anónimo de Internet, N1 anónimo de red local,
 
 Además, aun si se lograra alterar la copia pública, la reconciliación periódica de hashes contra la fuente de verdad lo detecta, los snapshots firmados no se pueden reemplazar sin la clave del servicio de publicación, y la copia se reconstruye desde el core. La fuente de verdad nunca se modifica.
 
-## 3. Entregable II — Paso 1: Determinar el alcance
+## 3. Entregable 2 : Paso 1: Determinar el alcance
 ### 3.1 Proceso OWASP aplicado
 Aplicamos el proceso de cuatro pasos que vimos en el teórico. El primero es determinar el alcance, donde describimos el sistema, el nuevo requerimiento, los activos, las dependencias, los puntos de entrada, los niveles de confianza y los DFD. El segundo es determinar las amenazas, analizando cada componente y flujo con STRIDE y calculando DREAD. El tercero es determinar las contramedidas y mitigaciones, eligiendo el tratamiento (aceptar, eliminar, mitigar o transferir), definiendo los controles y estimando el riesgo residual. El cuarto es evaluar el análisis, verificando si quedan riesgos por encima del umbral, documentando las excepciones y planificando la siguiente iteración.
 
