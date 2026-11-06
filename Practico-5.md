@@ -74,9 +74,11 @@ DREAD es una herramienta de priorización y no una medida absoluta de probabilid
 ## 2. Entregable 1:  Arquitectura propuesta
 ### 2.1 Vista de arquitectura
 ![Arquitectura propuesta](diagramas/arquitectura-fixed.png)
-**Figura 1.** Arquitectura propuesta. El plano de escritura permanece en la red interna y el plano de lectura pública se despliega en una DMZ sin ruta hacia la red interna. La publicación es un flujo unidireccional de snapshots firmados.
+**Figura 1.** Vista lógica de alto nivel de la arquitectura propuesta. El plano de escritura permanece en la red interna y el plano de lectura pública se despliega en una DMZ sin ruta hacia la red interna. La publicación es un flujo unidireccional de snapshots firmados.
 
-La arquitectura mantiene el tablero público como un producto de datos derivado y no como una vista directa de la base de competición. Esto es lo que responde estructuralmente a la preocupación del dueño: desde Internet no existe una ruta de escritura hacia los puntajes, ni siquiera si un atacante compromete el sitio público.
+**Nota de lectura.** La Figura 1 es una vista lógica y no un mapa de reglas de firewall. El CDN/WAF se dibuja junto al hosting público por claridad, pero operativamente es un borde gestionado separado y semi-confiable. El Administrador se muestra en la red interna porque accede desde allí por VPN; la consola de administración reside en la red de gestión. El almacén público agrupa el receptor de publicación, la réplica y la caché. La sección 2.3 es la fuente de verdad para las zonas de confianza y las reglas de firewall.
+
+La arquitectura mantiene el tablero público como un producto de datos derivado y no como una vista directa de la base de competición. Esto es lo que responde estructuralmente a la preocupación del presidente: desde Internet no existe una ruta de escritura hacia los puntajes, ni siquiera si un atacante compromete el sitio público.
 ### 2.2 Componentes y responsabilidades
 
 | Componente | Zona | Responsabilidad | Controles principales |
