@@ -164,8 +164,6 @@ Este documento es la segunda iteración del modelo. La primera cubrió el sistem
 Los flujos nuevos son seis: F1 Usuario Internet hacia CDN, F2 CDN hacia Sitio público, F3 CDN/front hacia API pública, F4 API pública hacia réplica/caché, F12 Publicador hacia receptor DMZ y F13 Receptor hacia réplica pública. Los flujos F5 a F11 y F14 a F17 corresponden al plano interno y se mantienen de la iteración anterior. La tabla 3.5 los detalla.
 ### 3.5 Flujos de datos
 
-<!-- VERIFICAR: la definición de los flujos heredados (F5 a F11 y F14 a F17) se infirió del resto del documento. Ajustar si difiere de la iteración 1. -->
-
 | ID | Origen → Destino | Datos | Frontera cruzada | Origen |
 |---|---|---|---|---|
 | F1 | Usuario de Internet → CDN/WAF | Requests HTTPS GET (torneos, resultados) | Internet → borde | Nuevo |
@@ -176,13 +174,13 @@ Los flujos nuevos son seis: F1 Usuario Internet hacia CDN, F2 CDN hacia Sitio p�
 | F6 | App Android → API interna | Ingreso de puntajes con token JWT (mTLS) | Interna | Heredado |
 | F7 | SPA de mesa de control → API interna | Validación, corrección y oficialización de puntajes | Interna | Heredado |
 | F8 | API interna ↔ PostgreSQL primaria | Lectura y escritura de puntajes y versiones | Interna | Heredado |
-| F9 | Consola de administración → API interna | Gestión de usuarios, roles y configuración | Red de gestión → interna | Heredado |
+| F9 | API interna → PostgreSQL primaria | Escritura provisional del puntaje antes de la oficialización | Interna | Heredado |
 | F10 | API interna ↔ IdP / SSO | Validación de tokens y claims | Interna | Heredado |
 | F11 | PostgreSQL primaria → Servicio de publicación | Lectura de puntajes oficiales (outbox/CDC, vista de solo lectura) | Interna | Heredado |
 | F12 | Servicio de publicación → Receptor de publicación | Snapshot firmado con secuencia y hash (HTTPS + mTLS, solo saliente) | Red interna → DMZ | Nuevo |
 | F13 | Receptor de publicación → Réplica pública | Escritura idempotente del snapshot validado | Interna de la DMZ | Nuevo |
-| F14 | API interna → SIEM | Eventos de auditoría | Interna | Heredado |
-| F15 | Servicio de publicación → SIEM | Logs del proceso de publicación | Interna | Heredado |
+| F14 | Servicios internos → SIEM | Eventos de auditoría de la API, del publicador y del receptor | Interna | Heredado |
+| F15 | Consola de administración → API interna | Gestión de usuarios, roles y configuración | Red de gestión → interna | Heredado |
 | F16 | CI/CD → Entornos | Despliegue de artefactos firmados | Red de gestión → entornos | Heredado |
 | F17 | PostgreSQL primaria → Backups / KMS | Copias cifradas y claves | Interna → gestión | Heredado |
 
@@ -210,7 +208,7 @@ Para cada elemento y flujo del DFD aplicamos las seis categorías STRIDE: S Spoo
 | NT-15 | E | Compromiso del servicio de publicación (que custodia la clave de firma) o del receptor, que permite emitir snapshots falsos con firma válida o escribir directamente en la réplica pública. | F12, F13 | 10/4/3/10/4 | 6,2 | Media |
 | NT-16 | E | Cadena de suministro comprometida: dependencia npm/Maven, imagen base o JavaScript de terceros que ejecuta código en el front o en la API. | CI/CD, front, API | 10/5/4/10/6 | 7,0 | Alta |
 | NT-17 | R | Un juez, la mesa o un operador niega haber registrado, corregido o publicado un resultado, sin evidencia suficiente para acreditarlo. | F6, F7, F12, F14 | 7/7/5/6/4 | 5,8 | Media |
-| NT-18 | E | Exposición accidental de la consola de administración a Internet por un error de configuración (regla de firewall, DNS o balanceador), quedando sujeta a fuerza bruta, credential stuffing o explotación de vulnerabilidades. | EP-07, F9 | 10/6/5/10/7 | 7,6 | Alta |
+| NT-18 | E | Exposición accidental de la consola de administración a Internet por un error de configuración (regla de firewall, DNS o balanceador), quedando sujeta a fuerza bruta, credential stuffing o explotación de vulnerabilidades. | EP-07, F15 | 10/6/5/10/7 | 7,6 | Alta |
 | NT-19 | I | Fuga de secretos, como claves de base de datos, del CDN o de firma, en repositorios, imágenes, front o logs de CI. | CI/CD, KMS, front | 9/7/6/10/6 | 7,6 | Alta |
 | NT-20 | D | Acoplamiento entre el tablero público y el registro de puntajes: la caída o la carga del tablero afecta la operación del torneo. | Arquitectura, F4, F8 | 10/5/4/10/4 | 6,6 | Media |
 
